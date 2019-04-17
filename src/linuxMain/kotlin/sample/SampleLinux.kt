@@ -25,6 +25,7 @@ fun printHelp() {
     println("Flags that affect how arguments are processed")
     println("-h,  --help                      print help")
     println("-u,  --usage                     print usage")
+    println("-v,  --version                   print version information")
     println("-t, --test                       test the macro preprocessor using its internal testing suite")
     println("-, --stdin                       read input from stdin\n" +
             "                                 default if no 'Flags that affect how arguments are processed' are given)"
