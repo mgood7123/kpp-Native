@@ -58,41 +58,41 @@
 //                globalVariables.rootDirectory.toString() + '/' + basename(globalVariables.kppDir) +
 //                        a.toString().removePrefix(globalVariables.rootDirectory!!.path)
 //            )
-//            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "A :     $a")
-//            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "B : $b")
+//            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "A :     $a")
+//            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "B : $b")
 //            if (a.exists()) {
 //                if (a.isDirectory) {
 //                    // ignore build dir in A
 //                    // if build dir exists in B, delete it
 //                    val blocked = a.toString() == globalVariables.projectDirectory?.path + "/build"
 //                    if (!blocked) {
-//                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "entering $a")
+//                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "entering $a")
 //                        syncB(a, src, extension)
-//                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "leaving $a")
-//                    } else if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "A is blocked")
+//                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "leaving $a")
+//                    } else if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "A is blocked")
 //                    if (b.exists()) {
 //                        if (blocked) {
-//                            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting B")
+//                            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting B")
 //                            deleteRecursive(b)
 //                        } else if (empty(b)) {
-//                            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting B")
+//                            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting B")
 //                            delete(b)
 //                        }
 //                    }
 //                    val aPreProcessed = File(a.path + globalVariables.preprocessedExtension + "." + a.extension)
 //                    val bPreProcessed = File(b.path + globalVariables.preprocessedExtension + "." + b.extension)
 //                    if (aPreProcessed.exists()) {
-//                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting preprocessing file associated with A")
+//                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting preprocessing file associated with A")
 //                        delete(aPreProcessed)
 //                    }
 //                    if (bPreProcessed.exists()) {
-//                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting preprocessing file associated with B")
+//                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting preprocessing file associated with B")
 //                        delete(bPreProcessed)
 //                    }
 //                } else if (a.isFile) {
 //                    if (a.path.endsWith(globalVariables.preprocessedExtension + "." + a.extension)) {
-//                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "A is preprocessor file")
-//                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting A")
+//                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "A is preprocessor file")
+//                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting A")
 //                        delete(a)
 //                    } else if (!ignore.contains(a.extension)) {
 //                        // if extension is null, test every file
@@ -100,42 +100,42 @@
 //                        if (it.extension == extension || extension == null) {
 //                            if (!b.exists()) {
 //                                if (testFile(a!!)) {
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "copying A to B")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "copying A to B")
 //                                    if (!cp(a.path, b.path, true))
 //                                        abort(preprocessor.base.globalVariables.depthAsString() + "failed to copy $a to $b")
 //                                } else {
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "B does not exist however A does not contain DATA")
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "B cannot be deleted as it does not exist")
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "A will not be copied to B")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "B does not exist however A does not contain DATA")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "B cannot be deleted as it does not exist")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "A will not be copied to B")
 //                                }
 //                            } else {
 //                                if (!testFile(b)) {
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "B exists however does not contains DATA")
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting B")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "B exists however does not contains DATA")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting B")
 //                                    delete(b)
-//                                } else if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "B contains DATA")
+//                                } else if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "B contains DATA")
 //                            }
 //                        }
 //                    } else {
-//                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "ignoring extension: ${a.extension}")
+//                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "ignoring extension: ${a.extension}")
 //                        if (b.exists()) {
-//                            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "A is ignoring but B exists, deleting B")
+//                            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "A is ignoring but B exists, deleting B")
 //                            delete(b)
 //                        }
 //                        val aPreProcessed = File(a.path + globalVariables.preprocessedExtension + "." + a.extension)
 //                        val bPreProcessed = File(b.path + globalVariables.preprocessedExtension + "." + b.extension)
 //                        if (aPreProcessed.exists()) {
-//                            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting preprocessing file associated with A")
+//                            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting preprocessing file associated with A")
 //                            delete(aPreProcessed)
 //                        }
 //                        if (bPreProcessed.exists()) {
-//                            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting preprocessing file associated with B")
+//                            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting preprocessing file associated with B")
 //                            delete(bPreProcessed)
 //                        }
 //                    }
 //                }
 //            } else {
-//                if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "A does not exist")
+//                if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "A does not exist")
 //            }
 //        }
 //    }
@@ -153,8 +153,8 @@
 //            val b = File(
 //                globalVariables.rootDirectory.toString() + '/' + a.toString().removePrefix(globalVariables.kppDir!!)
 //            )
-//            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "A : $a")
-//            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "B :     $b")
+//            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "A : $a")
+//            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "B :     $b")
 //            run returnPoint@{
 //                if (a.exists()) {
 //                    if (a.isDirectory) {
@@ -163,52 +163,52 @@
 //                        val blocked = a.toString() == globalVariables.projectDirectory?.path + "/build"
 //                        if (!blocked) {
 //                            if (b.path == globalVariables.kppDir) {
-//                                if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "error: B is kpp dir")
-//                                if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "kpp should not contain its own directory")
-//                                if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting A")
+//                                if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "error: B is kpp dir")
+//                                if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "kpp should not contain its own directory")
+//                                if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting A")
 //                                deleteRecursive(a)
-//                                if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
+//                                if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
 //                                return@returnPoint
 //                            } else {
 //                                if (b.exists()) {
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "entering $a")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "entering $a")
 //                                    syncA(a, src, extension)
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "leaving $a")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "leaving $a")
 //                                    if (empty(a)) {
-//                                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting A")
+//                                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting A")
 //                                        delete(a)
-//                                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
+//                                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
 //                                        return@returnPoint
 //                                    }
 //                                } else {
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "B does not exist")
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting A")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "B does not exist")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting A")
 //                                    deleteRecursive(a)
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
 //                                    return@returnPoint
 //                                }
 //                            }
-//                        } else if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "A is blocked")
+//                        } else if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "A is blocked")
 //                        if (b.exists()) {
 //                            if (blocked) {
-//                                if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting A")
+//                                if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting A")
 //                                deleteRecursive(a)
-//                                if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
+//                                if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
 //                                return@returnPoint
 //                            } else if (empty(a)) {
-//                                if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting A")
+//                                if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting A")
 //                                delete(a)
-//                                if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
+//                                if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
 //                                return@returnPoint
 //                            }
 //                        }
 //                    } else if (a.isFile) {
 //                        // if B does not exist, delete A
 //                        if (!b.exists()) {
-//                            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "B does not exist")
-//                            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting A")
+//                            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "B does not exist")
+//                            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "deleting A")
 //                            delete(a)
-//                            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
+//                            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
 //                            return@returnPoint
 //                        }
 //                        // if extension is null, test every file
@@ -216,14 +216,14 @@
 //                        if (!ignore.contains(a.extension)) {
 //                            if (it.extension == extension || extension == null) {
 //                                if (!testFile(a!!)) {
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "A exists however does not contains DATA")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "A exists however does not contains DATA")
 //                                    if (!a.path.endsWith(globalVariables.preprocessedExtension + "." + extension)) {
-//                                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "moving A to B")
+//                                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "moving A to B")
 //                                        if (!mv(a.path, b.path, verbose = true, overwrite = true))
 //                                            abort()
 //                                    } else {
-//                                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "A is preprocessor file")
-//                                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "moving A to B (renamed)")
+//                                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "A is preprocessor file")
+//                                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "moving A to B (renamed)")
 //                                        if (!mv(
 //                                                a.path,
 //                                                // Line is longer than allowed by code style (> 120 columns)
@@ -239,19 +239,19 @@
 //                                        )
 //                                            abort()
 //                                    }
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
 //                                    return@returnPoint
 //                                } else {
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "A contains DATA")
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "processing A")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "A contains DATA")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "processing A")
 //                                    if (a.extension == "") {
-//                                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "error: cannot process a file with no extension")
+//                                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "error: cannot process a file with no extension")
 //                                        return@returnPoint
 //                                    }
 //                                    macroList(globalVariables.kppMacroList)
 //                                    process(a.path, a.extension, globalVariables.kppMacroList)
 //                                    macroList(globalVariables.kppMacroList)
-//                                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "moving resulting preprocessing file A to B (renamed)")
+//                                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "moving resulting preprocessing file A to B (renamed)")
 //                                    if (!mv(
 //                                            a.path + globalVariables.preprocessedExtension + "." + a.extension,
 //                                            b.path,
@@ -259,18 +259,18 @@
 //                                            overwrite = true
 //                                        )
 //                                    )
-//                                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
+//                                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
 //                                    return@returnPoint
 //                                }
 //                            }
 //                        } else {
-//                            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "ignoring extension: ${a.extension}")
-//                            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
+//                            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "ignoring extension: ${a.extension}")
+//                            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning to @returnPoint")
 //                            return@returnPoint
 //                        }
 //                    }
 //                } else {
-//                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "A does not exist")
+//                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "A does not exist")
 //                }
 //            }
 //        }
@@ -338,7 +338,7 @@
 //     */
 //    private fun testFile(src: File): Boolean {
 //        globalVariables.currentFileContainsPreprocessor = false
-//        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "testing file: ${src.path}")
+//        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "testing file: ${src.path}")
 //        val lines: List<String> = Files.readAllLines(src.toPath())
 //        lines.forEach { line ->
 //            checkIfPreprocessorIsNeeded(line)

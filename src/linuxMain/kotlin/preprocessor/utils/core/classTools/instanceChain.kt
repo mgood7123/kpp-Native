@@ -17,12 +17,12 @@
 //    return if (index == 0) {
 //        chain[index]
 //    } else {
-//        if (debug) if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "chain[$index] = " + chain[index])
+//        if (debug) if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "chain[$index] = " + chain[index])
 //        val outer = chain[index]
 //        val toRun = Class.forName(chain[index].javaClass.name + "$" + chain[index - 1].javaClass.simpleName)
 //        val ctor = toRun.getDeclaredConstructor(chain[index]::class.java)
 //        val lowerCInstance = ctor.newInstance(outer)
-//        if (debug) if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "lowerCInstance = " + lowerCInstance!!::class.java)
+//        if (debug) if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "lowerCInstance = " + lowerCInstance!!::class.java)
 //        if (index == 1) lowerCInstance
 //        else instanceChain(
 //            chain = chain,
@@ -58,7 +58,7 @@
 //
 //    val f = mutableListOf<A>()
 //    f.add(A()) // this is required, as i do not know how to do accomplish this in the init block
-//    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[0] = ${instanceChain(chain(f[0]))}")
-//    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[0].a[0] = ${instanceChain(chain(f[0].a[0]))}")
-//    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[0].a[0].a[0] = ${instanceChain(chain(f[0].a[0].a[0]))}")
+//    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[0] = ${instanceChain(chain(f[0]))}")
+//    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[0].a[0] = ${instanceChain(chain(f[0].a[0]))}")
+//    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[0].a[0].a[0] = ${instanceChain(chain(f[0].a[0].a[0]))}")
 //}

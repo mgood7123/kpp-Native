@@ -166,7 +166,7 @@ class Balanced {
      */
     fun extractText(text: String): String {
         if (isBalanced(text, '(', ')')) {
-            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "text : " + text.substring(start[0], end[0]))
+            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "text : " + text.substring(start[0], end[0]))
             return text.substring(start[0], end[0])
         }
         return text
@@ -176,7 +176,7 @@ class Balanced {
      *
      */
     fun info() {
-        if (preprocessor.base.globalVariables.debug) {
+        if (preprocessor.base.globalVariables.flags.debug) {
             println(preprocessor.base.globalVariables.depthAsString() + "last check string  = $lastCheckString")
             println(preprocessor.base.globalVariables.depthAsString() + "left balancer      = $lastRegisteredLeftHandSideBalancer")
             println(preprocessor.base.globalVariables.depthAsString() + "right balancer     = $lastRegisteredRightHandSideBalancer")

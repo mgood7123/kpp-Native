@@ -27,16 +27,16 @@ import preprocessor.utils.core.realloc
 //    var index = macro.size - 1
 //    if (macro[index].fileName != null) {
 //        index++
-//        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "reallocating to $index")
+//        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "reallocating to $index")
 //        realloc(macro, index + 1)
 //    }
 //    macro[index].fileName = src.substringAfterLast('/')
-//    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "registered macro definition for ${macro[index].fileName} at index $index")
-//    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "processing ${macro[index].fileName} -> ${destinationPreProcessed.name}")
+//    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "registered macro definition for ${macro[index].fileName} at index $index")
+//    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "processing ${macro[index].fileName} -> ${destinationPreProcessed.name}")
 //    destinationPreProcessed.createNewFile()
 //    val lex = Lexer(fileToByteArray(File(src)), globalVariables.tokensNewLine)
 //    lex.lex()
-//    if (preprocessor.base.globalVariables.debug) println(
+//    if (preprocessor.base.globalVariables.flags.debug) println(
 //        preprocessor.base.globalVariables.depthAsString() + "lex.currentLine is ${lex.currentLine
 //            ?.replace("\n", "\n" + preprocessor.base.globalVariables.depthAsString())}"
 //    )
@@ -47,11 +47,11 @@ import preprocessor.utils.core.realloc
 //        if (input[input.length - 1] == '\n') {
 //            input = input.dropLast(1)
 //        }
-//        if (preprocessor.base.globalVariables.debug) println(
+//        if (preprocessor.base.globalVariables.flags.debug) println(
 //            preprocessor.base.globalVariables.depthAsString() + "\ninput = $input"
 //                .replace("\n", "\n" + preprocessor.base.globalVariables.depthAsString())
 //        )
-//        if (preprocessor.base.globalVariables.debug) println(
+//        if (preprocessor.base.globalVariables.flags.debug) println(
 //            preprocessor.base.globalVariables.depthAsString() + "output = $out\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
 //                .replace("\n", "\n" + preprocessor.base.globalVariables.depthAsString())
 //        )
@@ -72,14 +72,14 @@ import preprocessor.utils.core.realloc
 fun processDefine(line: String, macro: MutableList<Macro>) {
     val fullMacro: String = line.trimStart().removePrefix(Macro().Directives().value).trimStart()
     if (fullMacro.substringAfter(' ').isBlank()) {
-        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "empty define statement")
+        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "empty define statement")
         return
     }
 
     val index = macro.size - 1
-    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "saving macro in to index $index")
+    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "saving macro in to index $index")
     var macroIndex = macro[index].macros.size - 1
-    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "saving macro in to macro index $macroIndex")
+    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "saving macro in to macro index $macroIndex")
     // to include the ability to redefine existing definitions, we must save to local variables first
     // determine token type
     // Line is longer than allowed by code style (> 120 columns)
@@ -105,7 +105,7 @@ fun processDefine(line: String, macro: MutableList<Macro>) {
             empty = true
         }
         val i = macroExists(token, type, index, macro)
-        macroIndex = if (globalVariables.currentMacroExists) {
+        macroIndex = if (globalVariables.status.currentMacroExists) {
             i
         } else {
             if (macro[index].macros[macroIndex].fullMacro != null) {
@@ -128,7 +128,7 @@ fun processDefine(line: String, macro: MutableList<Macro>) {
         token =
             fullMacro.substringAfter(' ').substringBefore('(').trimStart()
         val i = macroExists(token, type, index, macro)
-        macroIndex = if (globalVariables.currentMacroExists) {
+        macroIndex = if (globalVariables.status.currentMacroExists) {
             i
         } else {
             if (macro[index].macros[macroIndex].fullMacro != null) {
@@ -149,14 +149,14 @@ fun processDefine(line: String, macro: MutableList<Macro>) {
         macro[index].macros[macroIndex].replacementList = if (b.end[0] >= t.length) null
         else t.substring(b.end[0] + 1).trimStart()
     }
-    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "type       = ${macro[index].macros[macroIndex].type}")
-    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "token      = ${macro[index].macros[macroIndex].identifier}")
+    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "type       = ${macro[index].macros[macroIndex].type}")
+    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "token      = ${macro[index].macros[macroIndex].identifier}")
     if (macro[index].macros[macroIndex].arguments != null)
-        if (preprocessor.base.globalVariables.debug) println(
+        if (preprocessor.base.globalVariables.flags.debug) println(
             preprocessor.base.globalVariables.depthAsString() +
                     "arguments  = ${macro[index].macros[macroIndex].arguments}"
         )
-    if (preprocessor.base.globalVariables.debug) println(
+    if (preprocessor.base.globalVariables.flags.debug) println(
         preprocessor.base.globalVariables.depthAsString() +
                 "replacementList      = ${macro[index].macros[macroIndex].replacementList
                     ?.replace("\n", "\n" + preprocessor.base.globalVariables.depthAsString())

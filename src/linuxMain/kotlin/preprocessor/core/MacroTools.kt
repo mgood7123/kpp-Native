@@ -102,7 +102,7 @@ class Macro {
                     c[0].macros[0].replacementList = "B00"
                     c[0].macros[0].type =
                         Macro().Directives().Define().Types().Object
-                    if (preprocessor.base.globalVariables.debug) println(c[0].macros[0].type)
+                    if (preprocessor.base.globalVariables.flags.debug) println(c[0].macros[0].type)
                 }
 
                 private fun functionSample() {
@@ -124,7 +124,7 @@ class Macro {
                     c[0].macros[0].replacementList = "B00"
                     c[0].macros[0].type =
                         Macro().Directives().Define().Types().Function
-                    if (preprocessor.base.globalVariables.debug) println(c[0].macros[0].type)
+                    if (preprocessor.base.globalVariables.flags.debug) println(c[0].macros[0].type)
                 }
             }
         }
@@ -204,25 +204,25 @@ class Macro {
             c[0].macros[0].fullMacro = "A B"
             c[0].macros[0].identifier = "A"
             c[0].macros[0].replacementList = "B00"
-            if (preprocessor.base.globalVariables.debug) println(c[0].macros[0].replacementList)
+            if (preprocessor.base.globalVariables.flags.debug) println(c[0].macros[0].replacementList)
             realloc(c, c.size + 1)
             c[1].fileName = "test"
             c[1].macros[0].fullMacro = "A B"
             c[1].macros[0].identifier = "A"
             c[1].macros[0].replacementList = "B10"
-            if (preprocessor.base.globalVariables.debug) println(c[1].macros[0].replacementList)
+            if (preprocessor.base.globalVariables.flags.debug) println(c[1].macros[0].replacementList)
             realloc(c[1].macros, c[1].macros.size + 1)
             c[1].fileName = "test"
             c[1].macros[1].fullMacro = "A B"
             c[1].macros[1].identifier = "A"
             c[1].macros[1].replacementList = "B11"
-            if (preprocessor.base.globalVariables.debug) println(c[1].macros[1].replacementList)
+            if (preprocessor.base.globalVariables.flags.debug) println(c[1].macros[1].replacementList)
             realloc(c[1].macros, c[1].macros.size + 1)
             c[1].fileName = "test"
             c[1].macros[2].fullMacro = "A B"
             c[1].macros[2].identifier = "A"
             c[1].macros[2].replacementList = "B12"
-            if (preprocessor.base.globalVariables.debug) println(c[1].macros[2].replacementList)
+            if (preprocessor.base.globalVariables.flags.debug) println(c[1].macros[2].replacementList)
         }
 
         fun reallocUsage() {
@@ -248,13 +248,13 @@ class Macro {
             // allocate a new macro
             realloc(c[0].macros, c[0].macros.size + 1)
             c[0].macros[1].fullMacro = "A B"
-            if (preprocessor.base.globalVariables.debug) println(c[0].macros[1].replacementList)
+            if (preprocessor.base.globalVariables.flags.debug) println(c[0].macros[1].replacementList)
             // obtain base index
             val index = c.size - 1
             // obtain last macro index
             val macroIndex = c[0].macros.size - 1
             if (c[index].macros[macroIndex].fullMacro.equals(c[0].macros[1].fullMacro))
-                if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "index matches")
+                if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "index matches")
         }
 
         fun sizem() {
@@ -264,7 +264,7 @@ class Macro {
             c[1].fileName = "test2"
             val index = c.size - 1
             if (c[index].fileName.equals(c[1].fileName))
-                if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "index matches")
+                if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "index matches")
         }
     }
 }
@@ -273,24 +273,24 @@ class Macro {
  * checks if the desired macro exists in the [Macro] list
  */
 fun macroExists(token: String, type: String, index: Int, macro: MutableList<Macro>): Int {
-    globalVariables.currentMacroExists = false
+    globalVariables.status.currentMacroExists = false
     // if empty return 0 and do not set globalVariables.currentMacroExists
     if (macro[index].macros[0].fullMacro == null) return 0
     var i = 0
     while (i <= macro[index].macros.lastIndex) {
         if (macro[index].macros[i].identifier.equals(token) && macro[index].macros[i].type.equals(type)) {
             // Line is longer than allowed by code style (> 120 columns)
-            if (preprocessor.base.globalVariables.debug) println(
+            if (preprocessor.base.globalVariables.flags.debug) println(
                 preprocessor.base.globalVariables.depthAsString() +
                         "token and type matches existing definition ${macro[index].macros[i].identifier} type " +
                         "${macro[index].macros[i].type}"
             )
-            globalVariables.currentMacroExists = true
-            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning $i")
+            globalVariables.status.currentMacroExists = true
+            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "returning $i")
             return i
         }
         // Line is longer than allowed by code style (> 120 columns)
-        else if (preprocessor.base.globalVariables.debug) println(
+        else if (preprocessor.base.globalVariables.flags.debug) println(
             preprocessor.base.globalVariables.depthAsString() +
                     "token $token or type $type does not match current definition token " +
                     "${macro[index].macros[i].identifier} type ${macro[index].macros[i].type}"
@@ -305,38 +305,38 @@ fun macroExists(token: String, type: String, index: Int, macro: MutableList<Macr
  */
 fun macroList(index: Int = 0, macro: MutableList<Macro>) {
     if (macro[index].macros[0].fullMacro == null) return
-    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "LISTING macros")
+    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "LISTING macros")
     var i = 0
     while (i <= macro[index].macros.lastIndex) {
         // Line is longer than allowed by code style (> 120 columns)
-        if (preprocessor.base.globalVariables.debug) println(
+        if (preprocessor.base.globalVariables.flags.debug) println(
             preprocessor.base.globalVariables.depthAsString() +
                     "[$i].fullMacro       = ${macro[index].macros[i].fullMacro}"
         )
-        if (preprocessor.base.globalVariables.debug) println(
+        if (preprocessor.base.globalVariables.flags.debug) println(
             preprocessor.base.globalVariables.depthAsString() +
                     "[$i].type            = ${macro[index].macros[i].type}"
         )
-        if (preprocessor.base.globalVariables.debug) println(
+        if (preprocessor.base.globalVariables.flags.debug) println(
             preprocessor.base.globalVariables.depthAsString() +
                     "[$i].identifier      = " +
                     "${macro[index].macros[i].identifier}"
         )
         if (macro[index].macros[i].arguments != null)
         // Line is longer than allowed by code style (> 120 columns)
-            if (preprocessor.base.globalVariables.debug) println(
+            if (preprocessor.base.globalVariables.flags.debug) println(
                 preprocessor.base.globalVariables.depthAsString() +
                         "[$i].arguments       = ${macro[index].macros[i].arguments}"
             )
         // Line is longer than allowed by code style (> 120 columns)
-        if (preprocessor.base.globalVariables.debug) println(
+        if (preprocessor.base.globalVariables.flags.debug) println(
             preprocessor.base.globalVariables.depthAsString() +
                     "[$i].replacementList = ${macro[index].macros[i].replacementList
                         ?.replace("\n", "\n" + preprocessor.base.globalVariables.depthAsString())}"
         )
         i++
     }
-    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "LISTED macros")
+    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "LISTED macros")
 }
 
 /**
@@ -346,14 +346,14 @@ fun macroList(index: Int = 0, macro: MutableList<Macro>) {
  */
 fun macroList(macro: MutableList<Macro>) {
     if (macro.size == 0) {
-        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "macro list is empty")
+        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "macro list is empty")
         return
     }
     var i = 0
     while (i < macro.size) {
-        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "LISTING macros for file ${macro[i].fileName}")
+        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "LISTING macros for file ${macro[i].fileName}")
         macroList(i, macro)
-        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "LISTED macros for file ${macro[i].fileName}")
+        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "LISTED macros for file ${macro[i].fileName}")
         i++
     }
 }
@@ -365,7 +365,7 @@ fun toMacro(definition: List<String>?, replacementList: List<String>?): MutableL
     if (definition == null) return null
     if (replacementList == null) return toMacro(definition)
     // Line is longer than allowed by code style (> 120 columns)
-    if (preprocessor.base.globalVariables.debug) println(
+    if (preprocessor.base.globalVariables.flags.debug) println(
         preprocessor.base.globalVariables.depthAsString() +
                 "${definition.size} == ${replacementList.size} is " +
                 "${definition.size == replacementList.size}"

@@ -26,7 +26,7 @@
     <output url="file://$MODULE_DIR$/../../build/classes/kotlin/linux/main" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../src/linuxMain">
-      <sourceFolder url="file://$MODULE_DIR$/../../src/linuxMain/kotlin" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../src/linuxMain/kotlin" type="kotlin-source" />
     </content>
     <orderEntry type="jdk" jdkName="Kotlin SDK" jdkType="KotlinSDK" />
     <orderEntry type="sourceFolder" forTests="false" />

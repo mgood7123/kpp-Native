@@ -10,10 +10,83 @@ import preprocessor.utils.core.basename
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 class Globals {
 
+    val flags = Flags()
+    val status = Status()
+
     /**
-     * prints debug output if this value is true
+     * `<space> or <tab>`
+     * @see tokens
      */
-    var debug: Boolean = false
+    val tokensSpace: String = " \t"
+
+    /**
+     * `<newline>`
+     *
+     * (
+     *
+     * \n or
+     *
+     * "new
+     *
+     * line"
+     *
+     * )
+     * @see tokens
+     */
+    val tokensNewLine: String = "\n"
+
+    /**
+     * ```
+     * \
+     * "
+     * /
+     * *
+     * ```
+     * [Macro.Directives.value]
+     * ```
+     * (
+     * )
+     * .
+     * ,
+     * -
+     * >
+     * {
+     * }
+     * [
+     * ]
+     * ```
+     * @see tokens
+     */
+    val tokensExtra: String = "\\\"'/*${Macro().Directives().value}().,->{}[]"
+    /**
+     * ```
+     * +
+     * -
+     * *
+     * /
+     * ```
+     * @see tokens
+     */
+    val tokensMath: String = "+-*/"
+
+    /**
+     * the Default list of tokens
+     *
+     * this is used in general tokenization and [Macro] expansion
+     *
+     * **tokens = [tokensSpace] + [tokensNewLine] + [tokensExtra] + [tokensMath]**
+     */
+    val tokens: String = tokensSpace + tokensNewLine + tokensExtra + tokensMath
+
+    /**
+     * the current depth
+     */
+    var depth: Int = 0
+    /**
+     * returns a depth string
+     */
+    fun depthAsString(): String = "    ".repeat(depth) + "depth:$depth > "
+
 //    /**
 //     * the current project directory that this task has been called from
 //     * @see projectDirectoryBaseName
@@ -83,46 +156,6 @@ class Globals {
 //    fun initGlobals(rootDir: String, projectDir: String) {
 //        initGlobals(File(rootDir), File(projectDir))
 //    }
-
-    /**
-     * this is used by [testFile][preprocessor.utils.Sync.testFile]
-     */
-    var currentFileContainsPreprocessor: Boolean = false
-    /**
-     *
-     *//*
-    TODO: implement file cache
-    var currentFileIsCashed: Boolean = false
-    var cachedFileContainsPreprocessor: Boolean = false
-     */
-    var firstLine: Boolean = true
-    /**
-     *
-     */
-    var currentMacroExists: Boolean = false
-    /**
-     *
-     */
-    var abortOnComplete: Boolean = true
-
-    /**
-     * `<space> or <tab>`
-     * @see tokens
-     */
-    val tokensSpace: String = " \t"
-    val tokensNewLine: String = "\n"
-    val tokensExtra: String = "\\\"'/*${Macro().Directives().value}().,->{}[]"
-    val tokensMath: String = "+-*/"
-    val tokens: String = tokensSpace + tokensNewLine + tokensExtra + tokensMath
-
-    /**
-     * the current depth
-     */
-    var depth: Int = 0
-    /**
-     * returns a depth string
-     */
-    fun depthAsString(): String = "    ".repeat(depth) + "depth:$depth > "
 }
 
 //private fun globalsSample(rootDir: File, projectDir: File) {

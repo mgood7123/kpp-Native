@@ -15,21 +15,21 @@ fun extractArguments(arg: String): MutableList<String>? {
                 ex.info()
                 if (ex.splitterCount == 0) {
                     arguments.add(arg)
-                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + arguments[0])
+                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + arguments[0])
                 } else {
                     var s: String = arg.substring(0, ex.splitterLocation[0]).trimStart()
                     arguments.add(s)
-                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + arguments[0])
+                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + arguments[0])
                     var i = 0
                     while (i < ex.splitterLocation.lastIndex) {
                         s = arg.substring(ex.splitterLocation[i] + 1, ex.splitterLocation[i + 1]).trimStart()
                         arguments.add(s)
-                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + arguments[i])
+                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + arguments[i])
                         i++
                     }
                     s = arg.substring(ex.splitterLocation[i] + 1, ex.index).trimStart()
                     arguments.add(s)
-                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + arguments[i])
+                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + arguments[i])
                 }
             } else {
                 ex.info()
@@ -48,10 +48,10 @@ fun extractArguments(arg: String): MutableList<String>? {
                 i++
             }
         }
-        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "arguments List = $arguments")
+        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "arguments List = $arguments")
         return arguments
     }
-    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "extracting arguments for $arg")
+    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "extracting arguments for $arg")
     // first, determine the positions of all tokens
     val balance = Balanced.BalanceList()
     balance.addPair('(', ')')

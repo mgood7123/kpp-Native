@@ -12,7 +12,7 @@ package preprocessor.utils.core
  * throw GradleException(e)
  */
 fun abort(e: String = "Aborted"): Nothing {
-    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "Aborting with error: $e")
+    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "Aborting with error: $e")
     else println("Aborting with error: $e")
     throw Exception(e).also {ex ->
         println("stack trace:").also {

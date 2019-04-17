@@ -42,7 +42,7 @@ fun expand(
     preprocessor.base.globalVariables.depth = depth
     var stringize = s
     var concat = c
-    if (preprocessor.base.globalVariables.debug) {
+    if (preprocessor.base.globalVariables.flags.debug) {
         println(preprocessor.base.globalVariables.depthAsString() + "PARAMETERS AT FUNCTION CALL START")
         println(
             preprocessor.base.globalVariables.depthAsString() + "expanding '${
@@ -95,7 +95,7 @@ fun expand(
         val singleString = tokenSequence.IsSequenceOnce("'")
         val backslash = tokenSequence.IsSequenceOnce("\\")
         if (comment.peek()) {
-            if (preprocessor.base.globalVariables.debug) println(
+            if (preprocessor.base.globalVariables.flags.debug) println(
                 preprocessor.base.globalVariables.depthAsString() + "clearing comment token '${tokenSequence
                     .toString()
                     .replace("\n", "\n" + preprocessor.base.globalVariables.depthAsString())}'"
@@ -134,7 +134,7 @@ fun expand(
                 preprocessor.base.globalVariables.depthAsString() + "iterations expired"
             )
         } else if (doubleString.peek()) {
-            if (preprocessor.base.globalVariables.debug) println(
+            if (preprocessor.base.globalVariables.flags.debug) println(
                 preprocessor.base.globalVariables.depthAsString() +
                         "popping double string token '$doubleString'"
             )
@@ -153,7 +153,7 @@ fun expand(
                     tokenSequence.tokenList = parserPrep(lex.currentLine as String)
                 }
                 if (newline.peek()) {
-                    if (preprocessor.base.globalVariables.debug) println(
+                    if (preprocessor.base.globalVariables.flags.debug) println(
                         preprocessor.base.globalVariables.depthAsString() + "popping newline token '${
                         newline
                             .toString()
@@ -162,7 +162,7 @@ fun expand(
                     )
                     newline.pop()
                 } else if (doubleString.peek()) {
-                    if (preprocessor.base.globalVariables.debug) println(
+                    if (preprocessor.base.globalVariables.flags.debug) println(
                         preprocessor.base.globalVariables.depthAsString() +
                                 "popping double string token '$doubleString'"
                     )
@@ -170,21 +170,21 @@ fun expand(
                     doubleString.pop()
                     break
                 } else if (backslash.peek()) {
-                    if (preprocessor.base.globalVariables.debug) println(
+                    if (preprocessor.base.globalVariables.flags.debug) println(
                         preprocessor.base.globalVariables.depthAsString() +
                                 "popping backslash token '$backslash'"
                     )
                     expansion.append(backslash.toString())
                     backslash.pop()
                     if (doubleString.peek()) {
-                        if (preprocessor.base.globalVariables.debug) println(
+                        if (preprocessor.base.globalVariables.flags.debug) println(
                             preprocessor.base.globalVariables.depthAsString() +
                                     "popping double string token '$doubleString'"
                         )
                         expansion.append(doubleString.toString())
                         doubleString.pop()
                     } else {
-                        if (preprocessor.base.globalVariables.debug) println(
+                        if (preprocessor.base.globalVariables.flags.debug) println(
                             preprocessor.base.globalVariables.depthAsString() +
                                     "unknown backslash sequence '${tokenSequence.peek()}'"
                         )
@@ -192,7 +192,7 @@ fun expand(
                     }
                 } else {
                     val popped = tokenSequence.pop()
-                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "popping normal token '$popped'")
+                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "popping normal token '$popped'")
                     expansion.append(popped)
                 }
                 iterations++
@@ -201,7 +201,7 @@ fun expand(
                 preprocessor.base.globalVariables.depthAsString() + "iterations expired"
             )
         } else if (singleString.peek()) {
-            if (preprocessor.base.globalVariables.debug) println(
+            if (preprocessor.base.globalVariables.flags.debug) println(
                 preprocessor.base.globalVariables.depthAsString() +
                         "popping single string token '$singleString'"
             )
@@ -220,7 +220,7 @@ fun expand(
                     tokenSequence.tokenList = parserPrep(lex.currentLine as String)
                 }
                 if (newline.peek()) {
-                    if (preprocessor.base.globalVariables.debug) println(
+                    if (preprocessor.base.globalVariables.flags.debug) println(
                         preprocessor.base.globalVariables.depthAsString() + "popping newline token '${
                         newline
                             .toString()
@@ -229,7 +229,7 @@ fun expand(
                     )
                     newline.pop()
                 } else if (singleString.peek()) {
-                    if (preprocessor.base.globalVariables.debug) println(
+                    if (preprocessor.base.globalVariables.flags.debug) println(
                         preprocessor.base.globalVariables.depthAsString() +
                                 "popping single string token '$singleString'"
                     )
@@ -237,21 +237,21 @@ fun expand(
                     singleString.pop()
                     break
                 } else if (backslash.peek()) {
-                    if (preprocessor.base.globalVariables.debug) println(
+                    if (preprocessor.base.globalVariables.flags.debug) println(
                         preprocessor.base.globalVariables.depthAsString() +
                                 "popping backslash token '$backslash'"
                     )
                     expansion.append(backslash.toString())
                     backslash.pop()
                     if (singleString.peek()) {
-                        if (preprocessor.base.globalVariables.debug) println(
+                        if (preprocessor.base.globalVariables.flags.debug) println(
                             preprocessor.base.globalVariables.depthAsString() +
                                     "popping single string token '$singleString'"
                         )
                         expansion.append(singleString.toString())
                         singleString.pop()
                     } else {
-                        if (preprocessor.base.globalVariables.debug) println(
+                        if (preprocessor.base.globalVariables.flags.debug) println(
                             preprocessor.base.globalVariables.depthAsString() +
                                     "unknown backslash sequence '${tokenSequence.peek()}'"
                         )
@@ -259,7 +259,7 @@ fun expand(
                     }
                 } else {
                     val popped = tokenSequence.pop()
-                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "popping normal token '$popped'")
+                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "popping normal token '$popped'")
                     expansion.append(popped)
                 }
                 iterations++
@@ -268,14 +268,14 @@ fun expand(
                 preprocessor.base.globalVariables.depthAsString() + "iterations expired"
             )
         } else if (emptyParenthesis.peek()) {
-            if (preprocessor.base.globalVariables.debug) println(
+            if (preprocessor.base.globalVariables.flags.debug) println(
                 preprocessor.base.globalVariables.depthAsString() +
                         "popping empty parenthesis token '$emptyParenthesis'"
             )
             expansion.append(emptyParenthesis.toString())
             emptyParenthesis.pop()
         } else if (newline.peek()) {
-            if (preprocessor.base.globalVariables.debug) println(
+            if (preprocessor.base.globalVariables.flags.debug) println(
                 preprocessor.base.globalVariables.depthAsString() + "popping newline token '${
                 newline
                     .toString()
@@ -299,12 +299,12 @@ comments or possibly other white-space characters in translation phase 3).
              */
             if (space.peek()) {
                 // case 1, space at start of file followed by define
-                if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "popping space token '$space'")
+                if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "popping space token '$space'")
                 space.pop()
                 expansion.append(" ")
             }
             if (directive.peek()) {
-                if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "popping directive token '$directive'")
+                if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "popping directive token '$directive'")
                 directive.pop()
 
                 if (stringize) {
@@ -316,7 +316,7 @@ comments or possibly other white-space characters in translation phase 3).
                     stringize = false
                     concat = false
                     // case 1, space at start of file followed by define
-                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "popping space token '$space'")
+                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "popping space token '$space'")
                     space.pop()
                 }
                 if (abortDef.peek()) abort("#abort found")
@@ -325,7 +325,7 @@ comments or possibly other white-space characters in translation phase 3).
                     stringize = false
                     concat = false
                     // case 2, define at start of line
-                    if (preprocessor.base.globalVariables.debug) println(
+                    if (preprocessor.base.globalVariables.flags.debug) println(
                         preprocessor.base.globalVariables.depthAsString() +
                                 "popping ${Macro().Directives().Define().value} statement '${tokenSequence
                                     .toString().replace("\n", "\n" + preprocessor.base.globalVariables.depthAsString())
@@ -336,7 +336,7 @@ comments or possibly other white-space characters in translation phase 3).
                 }
             }
         } else if (space.peek()) {
-            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "popping space token '$space'")
+            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "popping space token '$space'")
             space.pop()
             expansion.append(" ")
         } else {
@@ -345,7 +345,7 @@ comments or possibly other white-space characters in translation phase 3).
             val name: String
             if (ss == null) abort(preprocessor.base.globalVariables.depthAsString() + "something is wrong")
             name = ss
-            if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "popping normal token '$name'")
+            if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "popping normal token '$name'")
             /*
             kotlin supports new line statements but functions MUST not contain
             a new line between the identifier and the left parenthesis
@@ -362,7 +362,7 @@ comments or possibly other white-space characters in translation phase 3).
                     index,
                     macro
                 )
-                if (globalVariables.currentMacroExists) {
+                if (globalVariables.status.currentMacroExists) {
                     macroFunctionExists = true
                 }
                 macroObjectIndex = macroExists(
@@ -371,7 +371,7 @@ comments or possibly other white-space characters in translation phase 3).
                     index,
                     macro
                 )
-                if (globalVariables.currentMacroExists) {
+                if (globalVariables.status.currentMacroExists) {
                     macroObjectExists = true
                 }
             }
@@ -385,7 +385,7 @@ comments or possibly other white-space characters in translation phase 3).
 
                 var isFunction = false
 
-                if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "looking ahead")
+                if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "looking ahead")
                 val tsa = tokenSequence.clone()
                 val tsaSpace = tsa.IsSequenceOneOrMany(" ")
                 val tsaLeftParenthesis = tsa.IsSequenceOnce("(")
@@ -407,10 +407,10 @@ comments or possibly other white-space characters in translation phase 3).
                             0,
                             ARGUnexpanded
                         )
-                        if (globalVariables.currentMacroExists) skip = true
+                        if (globalVariables.status.currentMacroExists) skip = true
                     }
                     if (macroFunctionExists && !skip) {
-                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "'$name' is a function")
+                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "'$name' is a function")
                         // we know that this is a function, proceed to attempt to extract all arguments
                         /* 1) is identifying the bound variables
                               this is done automatically in processDefine
@@ -435,7 +435,7 @@ comments or possibly other white-space characters in translation phase 3).
                             macroFunctionIndex = macroFunctionIndex,
                             index = index
                         )
-                        if (preprocessor.base.globalVariables.debug) println(
+                        if (preprocessor.base.globalVariables.flags.debug) println(
                             preprocessor.base.globalVariables.depthAsString() +
                                     "eFS1R.argv = ${eFS1R.argv}"
                         )
@@ -452,11 +452,11 @@ comments or possibly other white-space characters in translation phase 3).
                             replacementList = macro[index].macros[eFS1R.macroTypeDependantIndex].replacementList
                         )
                         // 3) rescan, if the original macro appears again in the output, it isn't expanded any further
-                        if (preprocessor.base.globalVariables.debug) println(
+                        if (preprocessor.base.globalVariables.flags.debug) println(
                             preprocessor.base.globalVariables.depthAsString() +
                                     "rescanning, ARG = $ARG"
                         )
-                        if (preprocessor.base.globalVariables.debug) println(
+                        if (preprocessor.base.globalVariables.flags.debug) println(
                             preprocessor.base.globalVariables.depthAsString() +
                                     "eFS1R.argv = ${eFS1R.argv}"
                         )
@@ -466,20 +466,20 @@ comments or possibly other white-space characters in translation phase 3).
                         val eXT = if (originalExpandingType != null) originalExpandingType
                         else if (eFS1R.argv.isNotEmpty()) Macro().Directives().Define().Types().Function
                         else null
-                        if (preprocessor.base.globalVariables.debug) println(
+                        if (preprocessor.base.globalVariables.flags.debug) println(
                             preprocessor.base.globalVariables.depthAsString() +
                                     "eX = $eX"
                         )
-                        if (preprocessor.base.globalVariables.debug) println(
+                        if (preprocessor.base.globalVariables.flags.debug) println(
                             preprocessor.base.globalVariables.depthAsString() +
                                     "eXT = $eXT"
                         )
-                        if (preprocessor.base.globalVariables.debug) println(
+                        if (preprocessor.base.globalVariables.flags.debug) println(
                             preprocessor.base.globalVariables.depthAsString() +
                                     "blacklisting $name"
                         )
                         if (macroUnexpanded != null) {
-                            if (preprocessor.base.globalVariables.debug) println(
+                            if (preprocessor.base.globalVariables.flags.debug) println(
                                 preprocessor.base.globalVariables.depthAsString() +
                                         "macroUnexpanded " +
                                         "${macroUnexpanded[index].macros[eFS1R.macroTypeDependantIndex].identifier} of type " +
@@ -492,7 +492,7 @@ comments or possibly other white-space characters in translation phase 3).
                             )
                             abort("1")
                         }
-                        if (preprocessor.base.globalVariables.debug) {
+                        if (preprocessor.base.globalVariables.flags.debug) {
                             if (eFS1R.macroUnexpanded != null && eFS1R.macroUnexpanded.all { it.isNotBlank() }) {
                                 println(
                                     preprocessor.base.globalVariables.depthAsString() +
@@ -523,24 +523,24 @@ comments or possibly other white-space characters in translation phase 3).
                             string = e1!!
                         )
 
-                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() +
+                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() +
                                 "expansion = '${expansion.toString()}'")
-                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() +
+                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() +
                                 "e2 = '$e2'")
 
                         // 4) put the result of substitution back into the source code
                         if (e2 != null) expansion.append(e2)
-                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() +
+                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() +
                                 "expansion = '${expansion.toString()}'")
                     } else {
-                        if (preprocessor.base.globalVariables.debug) println(
+                        if (preprocessor.base.globalVariables.flags.debug) println(
                             preprocessor.base.globalVariables.depthAsString() +
                                     "'$name' is a function but no associated function macro exists"
                         )
                         expansion.append(name)
                     }
                 } else {
-                    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "'$name' is an object")
+                    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "'$name' is an object")
                     if (macroObjectExists) {
                         /*
                         macros expand multiple times in the same context : #define a b > a a > b b not b a, here
@@ -551,20 +551,20 @@ comments or possibly other white-space characters in translation phase 3).
                             true
                         if (occurrenceExists) skip = false
                         if (skip) {
-                            if (preprocessor.base.globalVariables.debug) println(
+                            if (preprocessor.base.globalVariables.flags.debug) println(
                                 preprocessor.base.globalVariables.depthAsString() +
                                         "but it is currently being expanded"
                             )
                             expansion.append(name)
                         } else {
-                            if (preprocessor.base.globalVariables.debug) println(
+                            if (preprocessor.base.globalVariables.flags.debug) println(
                                 preprocessor.base.globalVariables.depthAsString() +
                                         "and is not currently being expanded"
                             )
 
                             val macroTypeDependantIndex = macroObjectIndex
                             // Line is longer than allowed by code style (> 120 columns)
-                            if (preprocessor.base.globalVariables.debug) println(
+                            if (preprocessor.base.globalVariables.flags.debug) println(
                                 preprocessor.base.globalVariables.depthAsString() +
                                         "${macro[index].macros[macroTypeDependantIndex].identifier} of type " +
                                         "${macro[index].macros[macroTypeDependantIndex].type} has value " +
@@ -573,7 +573,7 @@ comments or possibly other white-space characters in translation phase 3).
                             )
                             if (stringize) {
                                 if (macroUnexpanded != null) {
-                                    if (preprocessor.base.globalVariables.debug) println(
+                                    if (preprocessor.base.globalVariables.flags.debug) println(
                                         preprocessor.base.globalVariables.depthAsString() +
                                                 "macroUnexpanded " +
                                                 "${macroUnexpanded[index].macros[macroTypeDependantIndex].identifier} of type " +
@@ -603,25 +603,25 @@ comments or possibly other white-space characters in translation phase 3).
                                 lex.lex()
                                 if (lex.currentLine != null) {
                                     if (ARG != null) {
-                                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "ARG = $ARG")
+                                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "ARG = $ARG")
                                         if (!ARG.contains(name)) {
-                                            if (preprocessor.base.globalVariables.debug) println(
+                                            if (preprocessor.base.globalVariables.flags.debug) println(
                                                 preprocessor.base.globalVariables.depthAsString() +
                                                         "blacklisting $name"
                                             )
                                             blacklist.add(name)
                                         } else {
-                                            if (preprocessor.base.globalVariables.debug) println(
+                                            if (preprocessor.base.globalVariables.flags.debug) println(
                                                 preprocessor.base.globalVariables.depthAsString() +
                                                         "$name is an argument"
                                             )
                                         }
                                     } else {
-                                        if (preprocessor.base.globalVariables.debug) println(
+                                        if (preprocessor.base.globalVariables.flags.debug) println(
                                             preprocessor.base.globalVariables.depthAsString() +
                                                     "warning: ARG is null"
                                         )
-                                        if (preprocessor.base.globalVariables.debug) println(
+                                        if (preprocessor.base.globalVariables.flags.debug) println(
                                             preprocessor.base.globalVariables.depthAsString() +
                                                     "blacklisting $name"
                                         )
@@ -649,7 +649,7 @@ comments or possibly other white-space characters in translation phase 3).
                                         c = concat
                                     )!!
                                     preprocessor.base.globalVariables.depth = depth
-                                    if (preprocessor.base.globalVariables.debug) println(
+                                    if (preprocessor.base.globalVariables.flags.debug) println(
                                         preprocessor.base.globalVariables.depthAsString() +
                                                 "macro Object expansion $name returned $e"
                                     )
@@ -660,7 +660,7 @@ comments or possibly other white-space characters in translation phase 3).
                             }
                         }
                     } else {
-                        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "but does not exist as a macro")
+                        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "but does not exist as a macro")
                         expansion.append(name)
                     }
                 }
@@ -668,8 +668,8 @@ comments or possibly other white-space characters in translation phase 3).
         }
         iterations++
     }
-    if (iterations > maxIterations) if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "iterations expired")
-    if (preprocessor.base.globalVariables.debug) {
+    if (iterations > maxIterations) if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "iterations expired")
+    if (preprocessor.base.globalVariables.flags.debug) {
         println(preprocessor.base.globalVariables.depthAsString() + "expansion = $expansion")
         println(preprocessor.base.globalVariables.depthAsString() + "PARAMETERS AT FUNCTION CALL END")
         println(preprocessor.base.globalVariables.depthAsString() + "expanding '${lex.currentLine?.replace("\n", "\n" + preprocessor.base.globalVariables.depthAsString())}'")
@@ -727,7 +727,7 @@ fun expandFunctionStep1Point5(
         if (newline.peek()) {
             newline.pop()
             if (tokenSequence.peek() == null) {
-                if (preprocessor.base.globalVariables.debug) println(
+                if (preprocessor.base.globalVariables.flags.debug) println(
                     preprocessor.base.globalVariables.depthAsString() +
                             "ran out of tokens, grabbing more tokens from the next line"
                 )
@@ -739,7 +739,7 @@ fun expandFunctionStep1Point5(
                 tokenSequence.tokenList = parserPrep(lex.currentLine as String)
             }
         }
-        if (preprocessor.base.globalVariables.debug) println(
+        if (preprocessor.base.globalVariables.flags.debug) println(
             preprocessor.base.globalVariables.depthAsString() +
                     "popping '${tokenSequence.peek()}'"
         )
@@ -774,28 +774,28 @@ fun expandFunctionStep1Point5(
         } else argv[argc] = argv[argc].plus(tokenSequence.pop())
         iterations++
     }
-    if (iterations > maxIterations) if (preprocessor.base.globalVariables.debug) println(
+    if (iterations > maxIterations) if (preprocessor.base.globalVariables.flags.debug) println(
         preprocessor.base.globalVariables.depthAsString() + "iterations expired"
     )
     argc++
-    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "argc = $argc")
-    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "argv = $argv")
+    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "argc = $argc")
+    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "argv = $argv")
     val macroTypeDependantIndex = macroFunctionIndex
     // Line is longer than allowed by code style (> 120 columns)
-    if (preprocessor.base.globalVariables.debug) println(
+    if (preprocessor.base.globalVariables.flags.debug) println(
         preprocessor.base.globalVariables.depthAsString() +
                 "${macro[index].macros[macroTypeDependantIndex].identifier} of type " +
                 "${macro[index].macros[macroTypeDependantIndex].type} has value " +
                 "${macro[index].macros[macroTypeDependantIndex].replacementList
                     ?.replace("\n", "\n" + preprocessor.base.globalVariables.depthAsString())}"
     )
-    if (preprocessor.base.globalVariables.debug) println(
+    if (preprocessor.base.globalVariables.flags.debug) println(
         preprocessor.base.globalVariables.depthAsString() +
                 "macro  args = ${macro[index].macros[macroTypeDependantIndex].arguments}"
     )
     val macroUnexpanded: MutableList<String> = mutableListOf()
     var i = 0
-    if (preprocessor.base.globalVariables.debug) println(
+    if (preprocessor.base.globalVariables.flags.debug) println(
         preprocessor.base.globalVariables.depthAsString() +
                 "expanding arguments: $argc arguments to expand"
     )
@@ -822,7 +822,7 @@ fun expandFunctionStep1Point5(
                     Macro().Directives().Define().Types().Object
             )
             preprocessor.base.globalVariables.depth = depth
-            if (preprocessor.base.globalVariables.debug) println(
+            if (preprocessor.base.globalVariables.flags.debug) println(
                 preprocessor.base.globalVariables.depthAsString() +
                         "macro expansion '${argv[i]}' returned $e"
             )
@@ -830,12 +830,12 @@ fun expandFunctionStep1Point5(
         }
         i++
     }
-    if (preprocessor.base.globalVariables.debug) println(
+    if (preprocessor.base.globalVariables.flags.debug) println(
         preprocessor.base.globalVariables.depthAsString() +
                 "expanded arguments: $argc arguments expanded"
     )
-    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "target args = $argv")
-    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "unexpanded target args = $macroUnexpanded")
+    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "target args = $argv")
+    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "unexpanded target args = $macroUnexpanded")
     return expandFunctionStep1Point5Return(
         argv = argv,
         macroUnexpanded = if (macroUnexpanded.isNotEmpty()) macroUnexpanded else null,
@@ -872,7 +872,7 @@ else {
         )
         if (associatedArguments == null || associatedArgumentsUnexpanded == null) abort("arguments are null")
         // Line is longer than allowed by code style (> 120 columns)
-        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "arguments" + arguments)
+        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "arguments" + arguments)
         val e = expand(
             depth = depth + 1,
             lex = lex,
@@ -907,15 +907,15 @@ fun expandFunctionStep3(
     c: Boolean,
     string: String
 ): String? {
-    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() +
+    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() +
             "string = '$string'")
     val lex2 = Lexer(string.toByteArray(), globalVariables.tokensNewLine)
     lex2.lex()
     if (lex2.currentLine != null) {
         val parser = Parser(parserPrep(lex2.currentLine as String))
-        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() +
+        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() +
                 "lex.currentLine = '${lex.currentLine}'")
-        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() +
+        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() +
                 "lex2.currentLine = '${lex2.currentLine}'")
         val e = expand(
             depth = depth + 1,

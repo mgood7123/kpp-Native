@@ -24,7 +24,7 @@
 // */
 //fun chain(a: Any, m: MutableList<Any> = mutableListOf(), debug: Boolean = false): MutableList<Any> {
 //    m.add(a)
-//    if (debug) if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "get upper class of ${a.javaClass.name}")
+//    if (debug) if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "get upper class of ${a.javaClass.name}")
 //    val upperC = getDeclaringUpperLevelClassObject(a) ?: abort(preprocessor.base.globalVariables.depthAsString() + "upperC is null o.o")
 //    return if (a == upperC) m
 //    else chain(upperC, m)

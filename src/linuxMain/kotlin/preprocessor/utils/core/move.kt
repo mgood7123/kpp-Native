@@ -11,11 +11,11 @@
 //fun mv(src: String, dest: String, verbose: Boolean = false, overwrite: Boolean = false): Boolean {
 //    return try {
 //        File(src).copyTo(File(dest), overwrite)
-//        if (verbose) if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "$src -> $dest")
+//        if (verbose) if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "$src -> $dest")
 //        delete(File(src))
 //        true
 //    } catch (e: IOException) {
-//        if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "failed to move $src to $dest")
+//        if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "failed to move $src to $dest")
 //        false
 //    }
 //}

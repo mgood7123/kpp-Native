@@ -126,25 +126,25 @@ import preprocessor.core.Macro
 //    fff.add(5.5)
 //
 //    realloc(f, 5)
-//    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[0].empty = ${f[0].empty}")
-//    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[4].empty = ${f[4].empty}")
+//    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[0].empty = ${f[0].empty}")
+//    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[4].empty = ${f[4].empty}")
 //
 //    f[0].a[0].empty = 88
-//    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[0].a[0].empty = ${f[0].a[0].empty}")
+//    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[0].a[0].empty = ${f[0].a[0].empty}")
 //    f[4].a[0].empty = 88
-//    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[4].a[0].empty = ${f[4].a[0].empty}")
+//    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[4].a[0].empty = ${f[4].a[0].empty}")
 //
 //    realloc(f[0].a, 5)
-//    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[0].a[4].empty = ${f[0].a[4].empty}")
+//    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[0].a[4].empty = ${f[0].a[4].empty}")
 //    realloc(f[4].a, 5)
-//    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[4].a[4].empty = ${f[4].a[4].empty}")
+//    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "f[4].a[4].empty = ${f[4].a[4].empty}")
 //
 //    realloc(ff, 5)
-//    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "ff[0] = ${ff[0]}")
-//    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "ff[4] = ${ff[4]}")
+//    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "ff[0] = ${ff[0]}")
+//    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "ff[4] = ${ff[4]}")
 //    realloc(fff, 5)
-//    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "fff[0] = ${fff[0]}")
-//    if (preprocessor.base.globalVariables.debug) println(preprocessor.base.globalVariables.depthAsString() + "fff[4] = ${fff[4]}")
+//    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "fff[0] = ${fff[0]}")
+//    if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() + "fff[4] = ${fff[4]}")
 //    abort()
 //}
 
