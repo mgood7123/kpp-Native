@@ -60,7 +60,10 @@ fun general() {
 
     parse("#define b(x) [1 x]", m)
     expect("a(2)", "[[1 ] 2]", m)
+
     parse("#define b(x) [1 x ]", m)
     expect("a(2)", "[[1 ] 2]", m)
 
+    parse("#define n(x) x", m)
+    expect("n(\nG\n)", "G", m)
 }

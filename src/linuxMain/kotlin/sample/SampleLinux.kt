@@ -2,6 +2,7 @@ package sample
 
 import preprocessor.test.Tests
 import preprocessor.test.init
+import preprocessor.utils.core.abort
 import preprocessor.utils.extra.parse
 
 // https://medium.com/@elye.project/mastering-kotlin-standard-functions-run-with-let-also-and-apply-9cd334b0ef84
@@ -26,6 +27,7 @@ fun printHelp() {
     println("-h,  --help                      print help")
     println("-u,  --usage                     print usage")
     println("-v,  --version                   print version information")
+    println("-r,  --repl, -R, --REPL          start a REPL session")
     println("-t, --test                       test the macro preprocessor using its internal testing suite")
     println("-, --stdin                       read input from stdin\n" +
             "                                 default if no 'Flags that affect how arguments are processed' are given)"
@@ -41,28 +43,22 @@ val m = init()
 fun processSTDIN() {
     var line = readLine()
     while (line != null) {
-        println(parse(line, m))
+        println(parse(line, m, newlineFunction = {
+            val x = readLine()
+            if (x != null) x
+            else abort("failed to grab a new line")
+        }))
         line = readLine()
     }
 }
 
-val version = 1.0
+
 
 fun printVersion() {
-    println("Kotlin Pre Processor Version $version")
+    println("Kotlin Pre Processor Version ${preprocessor.base.globalVariables.version}")
     println("https://github.com/mgood7123/kpp-Native")
     println("Developer: Matthew James Good")
     println("with huge help by: https://cpplang.slack.com/team/UAG0Z05BQ - chill")
-}
-
-fun REPL() {
-    // TODO make a proper REPL
-    println("Kotlin Pre Processor Version $version")
-    var line = readLine()
-    while (line != null) {
-        println(parse(line, m))
-        line = readLine()
-    }
 }
 
 fun main(a: Array<String>) {
@@ -74,6 +70,7 @@ fun main(a: Array<String>) {
             "-u", "--usage" -> printUsage()
             "-",  "--stdin" -> processSTDIN()
             "-v", "--version" -> printVersion()
+            "-r", "--repl", "-R", "--REPL" -> REPL().REPL()
             "-d", "--debug", "--debugon" -> {
                 preprocessor.base.globalVariables.flags.debug = true
                 if (a.size == 1) processSTDIN()

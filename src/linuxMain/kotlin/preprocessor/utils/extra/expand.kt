@@ -7,6 +7,10 @@ import preprocessor.utils.core.algorithms.collapse
 import preprocessor.utils.core.algorithms.toByteArray
 import kotlin.collections.MutableList
 
+fun expecting(what: String, closeValue: String): String {
+    return "expecting close value of $closeValue for $what >"
+}
+
 data class occurrence(val name: MutableList<String> = mutableListOf(), val times: MutableList<Int> = mutableListOf())
 /**
  * expands a line
@@ -35,7 +39,10 @@ fun expand(
     originalExpanding: String? = null,
     originalExpandingType: String? = null,
     s: Boolean = false,
-    c: Boolean = false
+    c: Boolean = false,
+    newlineFunction :(
+        (String) -> String
+    )?
 ): String? {
     val dm = 15
     if (depth > dm) abort("depth exceeded $dm")
@@ -94,6 +101,7 @@ fun expand(
         val doubleString = tokenSequence.IsSequenceOnce("\"")
         val singleString = tokenSequence.IsSequenceOnce("'")
         val backslash = tokenSequence.IsSequenceOnce("\\")
+
         if (comment.peek()) {
             if (preprocessor.base.globalVariables.flags.debug) println(
                 preprocessor.base.globalVariables.depthAsString() + "clearing comment token '${tokenSequence
@@ -111,10 +119,13 @@ fun expand(
                 if (tokenSequence.peek() == null) {
                     lex.lex()
                     // Line is longer than allowed by code style (> 120 columns)
-                    if (lex.currentLine == null) abort(
-                        preprocessor.base.globalVariables.depthAsString() +
-                                "no more lines when expecting more lines, unterminated block comment"
-                    )
+                    if (lex.currentLine == null) {
+                        if (newlineFunction == null) abort(
+                            preprocessor.base.globalVariables.depthAsString() +
+                                    "no more lines when expecting more lines, unterminated block comment"
+                        )
+                        else lex.currentLine = newlineFunction(expecting("block comment", "*/"))
+                    }
                     tokenSequence.tokenList = parserPrep(lex.currentLine as String)
                 }
                 if (newline.peek()) newline.pop()
@@ -146,10 +157,13 @@ fun expand(
                 if (tokenSequence.peek() == null) {
                     lex.lex()
                     // Line is longer than allowed by code style (> 120 columns)
-                    if (lex.currentLine == null) abort(
-                        preprocessor.base.globalVariables.depthAsString() +
-                                "no more lines when expecting more lines, unterminated block comment"
-                    )
+                    if (lex.currentLine == null) {
+                        if (newlineFunction == null) abort(
+                            preprocessor.base.globalVariables.depthAsString() +
+                                    "no more lines when expecting more lines, unterminated double string"
+                        )
+                        else lex.currentLine = newlineFunction(expecting("double string", "\""))
+                    }
                     tokenSequence.tokenList = parserPrep(lex.currentLine as String)
                 }
                 if (newline.peek()) {
@@ -206,17 +220,20 @@ fun expand(
                         "popping single string token '$singleString'"
             )
             expansion.append(singleString.toString())
-            singleString.pop() // pop the first "
+            singleString.pop() // pop the first '
             var iterations = 0
             val maxIterations = 1000
             while (iterations <= maxIterations) {
                 if (tokenSequence.peek() == null) {
                     lex.lex()
                     // Line is longer than allowed by code style (> 120 columns)
-                    if (lex.currentLine == null) abort(
-                        preprocessor.base.globalVariables.depthAsString() +
-                                "no more lines when expecting more lines, unterminated block comment"
-                    )
+                    if (lex.currentLine == null) {
+                        if (newlineFunction == null) abort(
+                            preprocessor.base.globalVariables.depthAsString() +
+                                    "no more lines when expecting more lines, unterminated single string"
+                        )
+                        else lex.currentLine = newlineFunction(expecting("single string", "'"))
+                    }
                     tokenSequence.tokenList = parserPrep(lex.currentLine as String)
                 }
                 if (newline.peek()) {
@@ -433,7 +450,8 @@ comments or possibly other white-space characters in translation phase 3).
                             rightBracket = rightBracket,
                             comma = comma,
                             macroFunctionIndex = macroFunctionIndex,
-                            index = index
+                            index = index,
+                            newlineFunction = newlineFunction
                         )
                         if (preprocessor.base.globalVariables.flags.debug) println(
                             preprocessor.base.globalVariables.depthAsString() +
@@ -449,7 +467,8 @@ comments or possibly other white-space characters in translation phase 3).
                             macroTypeDependantIndex = eFS1R.macroTypeDependantIndex,
                             arguments = macro[index].macros[eFS1R.macroTypeDependantIndex].arguments,
                             argv = eFS1R.argv,
-                            replacementList = macro[index].macros[eFS1R.macroTypeDependantIndex].replacementList
+                            replacementList = macro[index].macros[eFS1R.macroTypeDependantIndex].replacementList,
+                            newlineFunction = newlineFunction
                         )
                         // 3) rescan, if the original macro appears again in the output, it isn't expanded any further
                         if (preprocessor.base.globalVariables.flags.debug) println(
@@ -520,6 +539,7 @@ comments or possibly other white-space characters in translation phase 3).
                             originalExpandingType = eXT,
                             s = s,
                             c = c,
+                            newlineFunction = newlineFunction,
                             string = e1!!
                         )
 
@@ -646,7 +666,8 @@ comments or possibly other white-space characters in translation phase 3).
                                         originalExpanding = eX,
                                         originalExpandingType = eXT,
                                         s = stringize,
-                                        c = concat
+                                        c = concat,
+                                        newlineFunction = newlineFunction
                                     )!!
                                     preprocessor.base.globalVariables.depth = depth
                                     if (preprocessor.base.globalVariables.flags.debug) println(
@@ -710,7 +731,10 @@ fun expandFunctionStep1Point5(
     rightBracket: Parser.IsSequenceOnce,
     comma: Parser.IsSequenceOnce,
     macroFunctionIndex: Int,
-    index: Int
+    index: Int,
+    newlineFunction :(
+        (String) -> String
+    )?
 ): expandFunctionStep1Point5Return {
     var depthParenthesis = 0
     var depthBrace = 0
@@ -724,18 +748,24 @@ fun expandFunctionStep1Point5(
     val argv: MutableList<String> = mutableListOf()
     argv.add("")
     while (iterations <= maxIterations) {
-        if (newline.peek()) {
-            newline.pop()
+        if (if (newline.peek()) {
+                newline.pop()
+                true
+            } else tokenSequence.peek() == null
+        ) {
             if (tokenSequence.peek() == null) {
                 if (preprocessor.base.globalVariables.flags.debug) println(
                     preprocessor.base.globalVariables.depthAsString() +
                             "ran out of tokens, grabbing more tokens from the next line"
                 )
                 lex.lex()
-                if (lex.currentLine == null) abort(
-                    preprocessor.base.globalVariables.depthAsString() +
-                            "no more lines when expecting more lines"
-                )
+                if (lex.currentLine == null) {
+                    if (newlineFunction == null) abort(
+                        preprocessor.base.globalVariables.depthAsString() +
+                                "no more lines when expecting more lines, unterminated parenthesis"
+                    )
+                    else lex.currentLine = newlineFunction(expecting("parenthesis", ")"))
+                }
                 tokenSequence.tokenList = parserPrep(lex.currentLine as String)
             }
         }
@@ -819,7 +849,8 @@ fun expandFunctionStep1Point5(
                 expandingType = if (argv[i].contains('('))
                     Macro().Directives().Define().Types().Function
                 else
-                    Macro().Directives().Define().Types().Object
+                    Macro().Directives().Define().Types().Object,
+                newlineFunction = newlineFunction
             )
             preprocessor.base.globalVariables.depth = depth
             if (preprocessor.base.globalVariables.flags.debug) println(
@@ -855,7 +886,10 @@ fun expandFunctionStep2(
     macroTypeDependantIndex: Int,
     arguments: MutableList<String>?,
     argv: MutableList<String>,
-    replacementList: String?
+    replacementList: String?,
+    newlineFunction :(
+        (String) -> String
+    )?
 ): String? = if (macro[index].macros[macroTypeDependantIndex].replacementList == null) null
 else {
     val lex = Lexer(
@@ -881,7 +915,8 @@ else {
             macroUnexpanded = associatedArgumentsUnexpanded,
             ARG = arguments,
             expanding = name,
-            expandingType = Macro().Directives().Define().Types().Function
+            expandingType = Macro().Directives().Define().Types().Function,
+            newlineFunction = newlineFunction
         )
         preprocessor.base.globalVariables.depth = depth
         e
@@ -905,6 +940,9 @@ fun expandFunctionStep3(
     originalExpandingType: String?,
     s: Boolean,
     c: Boolean,
+    newlineFunction :(
+        (String) -> String
+    )?,
     string: String
 ): String? {
     if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() +
@@ -931,7 +969,8 @@ fun expandFunctionStep3(
             originalExpanding = originalExpanding,
             originalExpandingType = originalExpandingType,
             s = s,
-            c = c
+            c = c,
+            newlineFunction = newlineFunction
         )
         preprocessor.base.globalVariables.depth = depth
         return e

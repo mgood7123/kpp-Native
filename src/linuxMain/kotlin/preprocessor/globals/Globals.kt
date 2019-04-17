@@ -10,6 +10,8 @@ import preprocessor.utils.core.basename
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 class Globals {
 
+    val version = 1.0
+
     val flags = Flags()
     val status = Status()
 

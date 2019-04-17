@@ -13,10 +13,12 @@ kotlin {
     // For Windows, should be changed to e.g. mingwX64
     linuxX64("linux") {
         binaries {
-            executable {
-                // Change to specify fully qualified name of your application's entry point:
-               entryPoint = 'sample.main'
-                // Specify command-line arguments, if necessary:
+            executable([DEBUG]) {
+                entryPoint = 'sample.main'
+                runTask?.args('-d -t')
+            }
+            executable([RELEASE]) {
+                entryPoint = 'sample.main'
                 runTask?.args('-t')
             }
         }
