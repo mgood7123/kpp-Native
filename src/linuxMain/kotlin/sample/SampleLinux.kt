@@ -45,7 +45,7 @@ val version = 1.0
 fun printVersion() {
     println("Kotlin Pre Processor Version $version")
     println("https://github.com/mgood7123/kpp-Native")
-    println("Developer: Matther James Good")
+    println("Developer: Matthew James Good")
     println("with help by: ")
 }
 
