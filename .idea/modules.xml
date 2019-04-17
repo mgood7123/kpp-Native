@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/kpp.iml" filepath="$PROJECT_DIR$/kpp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/kpp.linuxMain.iml" filepath="$PROJECT_DIR$/.idea/modules/kpp.linuxMain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/kpp.linuxTest.iml" filepath="$PROJECT_DIR$/.idea/modules/kpp.linuxTest.iml" />
+    </modules>
+  </component>
+</project>
