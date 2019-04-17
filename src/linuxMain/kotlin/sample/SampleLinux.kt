@@ -46,7 +46,7 @@ fun printVersion() {
     println("Kotlin Pre Processor Version $version")
     println("https://github.com/mgood7123/kpp-Native")
     println("Developer: Matthew James Good")
-    println("with help by: ")
+    println("with huge help by: https://cpplang.slack.com/team/UAG0Z05BQ - chill")
 }
 
 fun REPL() {
