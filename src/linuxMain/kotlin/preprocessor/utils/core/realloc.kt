@@ -23,6 +23,7 @@ import preprocessor.core.Macro
 //@UseExperimental(ExperimentalUnsignedTypes::class)
 //@Suppress("UNCHECKED_CAST")
 //fun <E> realloc(v: kotlin.collections.MutableList<E?>, a : Any?, size: Int, isNullable: Boolean = true) {
+      // the first parameter <E> (in which E is just the name, like a MACRO) is inferred from the return type of whatever it is invoked on
 //    while (v.size != size) {
 //        if (size > v.size) {
 //            v.add(
@@ -150,10 +151,10 @@ import preprocessor.core.Macro
 
 fun realloc(m: MutableList<Macro.MacroInternal>, newSize: Int) {
     m.add(Macro().MacroInternal())
-    m[0].size = newSize
+//    m[0].size = newSize
 }
 
 fun realloc(m: MutableList<Macro>, newSize: Int) {
     m.add(Macro())
-    m[0].size = newSize
+//    m[0].size = newSize
 }

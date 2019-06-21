@@ -3,7 +3,9 @@
 package preprocessor.core
 
 import preprocessor.base.globalVariables
+import preprocessor.utils.`class`.extensions.tokenize
 import preprocessor.utils.core.abort
+import preprocessor.utils.core.algorithms.Stack
 import preprocessor.utils.core.realloc
 
 /**
@@ -137,14 +139,14 @@ class Macro {
      * @sample Tests.generalUsage
      */
     inner class MacroInternal {
-        /**
-         * the current size of the [macro][MacroInternal] list
-         *
-         * can be used to obtain the last added macro
-         *
-         * @sample Tests.sizem
-         */
-        var size: Int = 0
+//        /**
+//         * the current size of the [macro][MacroInternal] list
+//         *
+//         * can be used to obtain the last added macro
+//         *
+//         * @sample Tests.sizem
+//         */
+//        var size: Int = 0
         /**
          * the full macro definition
          *
@@ -175,14 +177,14 @@ class Macro {
         var replacementList: String? = null
     }
 
-    /**
-     * the current size of the [macro][Macro] list
-     *
-     * can be used to obtain the last added [macro group][MacroInternal]
-     *
-     * @sample Tests.size
-     */
-    var size: Int = 0
+//    /**
+//     * the current size of the [macro][Macro] list
+//     *
+//     * can be used to obtain the last added [macro group][MacroInternal]
+//     *
+//     * @sample Tests.size
+//     */
+//    var size: Int = 0
     /**
      * the name of the file containing this [macro][Macro] list
      */
@@ -193,7 +195,7 @@ class Macro {
     var macros: MutableList<MacroInternal>
 
     init {
-        this.size = 1
+//        this.size = 1
         macros = mutableListOf(MacroInternal())
     }
 
@@ -442,3 +444,12 @@ fun toMacro(definition: List<String>?): MutableList<Macro>? {
         else -> null
     }
 }
+
+/**
+ * prepares the input **line** for consumption by the macro [Parser]
+ * @return an [Stack] which is [split][tokenize] by the global variable **tokens**
+ *
+ * this [Stack] preserves the tokens in which it is split by
+ * @see Parser
+ */
+fun parserPrep(line: String): Stack<String> = Stack<String>().also { it.addLast(line.tokenize(globalVariables.tokens, true)) }

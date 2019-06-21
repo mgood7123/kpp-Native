@@ -1,6 +1,7 @@
 package preprocessor.utils.core.algorithms
 
-class LinkedList<T> : kotlin.collections.Iterable<T?> {
+@Suppress("unused")
+class LinkedList<T> : Iterable<T?> {
 
     inner class Node<T>(value: T?){
         var value:T? = value
@@ -140,13 +141,7 @@ class LinkedList<T> : kotlin.collections.Iterable<T?> {
             }
         }
     }
-    /*
-       fun clone(): LinkedList<T> {
-            val tmp = LinkedList<T>()
-            forEach { tmp.append(it) }
-            return tmp
-        }
-     */
+
     fun clone(): LinkedList<T> = LinkedList<T>().also {l -> forEach { l.append(it) } }
 
     fun clear() { while (!isEmpty()) removeLast() }

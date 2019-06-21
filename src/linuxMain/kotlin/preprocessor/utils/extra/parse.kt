@@ -2,10 +2,11 @@ package preprocessor.utils.extra
 
 import preprocessor.base.globalVariables
 import preprocessor.core.Macro
+import preprocessor.core.parserPrep
 import preprocessor.core.Lexer
 import preprocessor.core.Parser
-import preprocessor.core.parserPrep
-import preprocessor.utils.core.algorithms.toByteArray
+import preprocessor.utils.`class`.extensions.toByteArray
+import preprocessor.utils.core.algorithms.Stack
 
 /**
  * parses a line
@@ -24,7 +25,7 @@ fun parse(lex: Lexer, macro: MutableList<Macro>, newlineFunction :((String) -> S
     preprocessor.base.globalVariables.depth = 0
     return expand(
         lex = lex,
-        tokenSequence = Parser(tokens = parserPrep(lex.currentLine as String)),
+        tokenSequence = Parser(tokens = lex.currentLine as String, stackMethod = { parserPrep(it) }),
         macro = macro,
         newlineFunction = newlineFunction
     )
@@ -49,9 +50,7 @@ fun parse(
 fun parse(
     string: String,
     macro: MutableList<Macro>,
-    newlineFunction :(
-        (String) -> String
-    )?
+    newlineFunction :((String) -> String)?
 ): String? {
     if (string.isEmpty()) return string
     val lex = Lexer(

@@ -3,8 +3,9 @@ package preprocessor.utils.extra
 import preprocessor.base.globalVariables
 import preprocessor.core.*
 import preprocessor.utils.core.abort
-import preprocessor.utils.core.algorithms.collapse
-import preprocessor.utils.core.algorithms.toByteArray
+import preprocessor.utils.`class`.extensions.collapse
+import preprocessor.utils.`class`.extensions.toByteArray
+import preprocessor.utils.core.algorithms.Stack
 import kotlin.collections.MutableList
 
 fun expecting(what: String, closeValue: String): String {
@@ -648,7 +649,7 @@ comments or possibly other white-space characters in translation phase 3).
                                         blacklist.add(name)
                                     }
                                     val parser =
-                                        Parser(parserPrep(lex.currentLine as String))
+                                        Parser(lex.currentLine as String) { parserPrep(it) }
                                     val eX = if (originalExpanding != null) originalExpanding
                                     else if (depth == 0) name
                                     else null
@@ -839,7 +840,7 @@ fun expandFunctionStep1Point5(
         lex.lex()
         if (lex.currentLine != null) {
             val parser =
-                Parser(parserPrep(lex.currentLine as String))
+                Parser(lex.currentLine as String) { parserPrep(it) }
             val e = expand(
                 depth = depth + 1,
                 lex = lex,
@@ -898,7 +899,7 @@ else {
     )
     lex.lex()
     if (lex.currentLine != null) {
-        val parser = Parser(parserPrep(lex.currentLine as String))
+        val parser = Parser(lex.currentLine as String) { parserPrep(it) }
         val associatedArguments: MutableList<Macro>? = toMacro(arguments, argv)
         val associatedArgumentsUnexpanded: MutableList<Macro>? = toMacro(
             definition = arguments,
@@ -950,7 +951,7 @@ fun expandFunctionStep3(
     val lex2 = Lexer(string.toByteArray(), globalVariables.tokensNewLine)
     lex2.lex()
     if (lex2.currentLine != null) {
-        val parser = Parser(parserPrep(lex2.currentLine as String))
+        val parser = Parser(lex2.currentLine as String) { parserPrep(it) }
         if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() +
                 "lex.currentLine = '${lex.currentLine}'")
         if (preprocessor.base.globalVariables.flags.debug) println(preprocessor.base.globalVariables.depthAsString() +

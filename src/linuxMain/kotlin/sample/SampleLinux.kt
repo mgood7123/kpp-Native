@@ -1,9 +1,11 @@
 package sample
 
+import Hierarchy
 import preprocessor.test.Tests
 import preprocessor.test.init
 import preprocessor.utils.core.abort
 import preprocessor.utils.extra.parse
+import sample.kotlin.Kotlin
 
 // https://medium.com/@elye.project/mastering-kotlin-standard-functions-run-with-let-also-and-apply-9cd334b0ef84
 
@@ -36,6 +38,7 @@ fun printHelp() {
     println("Flags that do not affect how arguments are processed")
     println("-d,  --debug,   --debugon        enable debugging")
     println("-dd, --nodebug, --debugoff       disable debugging")
+    abort()
 }
 
 val m = init()
@@ -61,7 +64,11 @@ fun printVersion() {
     println("with huge help by: https://cpplang.slack.com/team/UAG0Z05BQ - chill")
 }
 
+
 fun main(a: Array<String>) {
+    val l = Kotlin("ABCDEF").Lexer()
+    return
+    Hierarchy().listFiles()
     if (a.isEmpty()) processSTDIN()
     else a.forEach {
         when(it) {

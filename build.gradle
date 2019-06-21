@@ -15,7 +15,7 @@ kotlin {
         binaries {
             executable([DEBUG]) {
                 entryPoint = 'sample.main'
-                runTask?.args('-d -t')
+                runTask?.args('-t')
             }
             executable([RELEASE]) {
                 entryPoint = 'sample.main'
@@ -36,3 +36,6 @@ kotlin {
 // Use the following Gradle tasks to run your application:
 // :runReleaseExecutableLinux - without debug symbols
 // :runDebugExecutableLinux - with debug symbols
+
+//apply from: "DirectoryPacker/build.gradle.kts"
+//compileKotlinLinux.dependsOn pack

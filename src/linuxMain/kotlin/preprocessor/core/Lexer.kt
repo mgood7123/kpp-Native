@@ -1,7 +1,7 @@
 package preprocessor.core
 
 import preprocessor.utils.core.algorithms.Stack
-import preprocessor.utils.core.algorithms.toStack
+import preprocessor.utils.`class`.extensions.toStack
 
 /**
  * a minimal Lexer implementation
