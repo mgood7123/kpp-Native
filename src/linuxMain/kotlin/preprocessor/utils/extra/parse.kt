@@ -21,7 +21,7 @@ fun parse(lex: Lexer, macro: MutableList<Macro>): String? = parse(lex, macro, nu
  * @param macro the [Macro] list
  * @param newlineFunction the function to try if [lex].lex() fails
  */
-fun parse(lex: Lexer, macro: MutableList<Macro>, newlineFunction :((String) -> String)?): String? {
+fun parse(lex: Lexer, macro: MutableList<Macro>, newlineFunction :((String) -> String?)?): String? {
     preprocessor.base.globalVariables.depth = 0
     return expand(
         lex = lex,
@@ -50,7 +50,7 @@ fun parse(
 fun parse(
     string: String,
     macro: MutableList<Macro>,
-    newlineFunction :((String) -> String)?
+    newlineFunction :((String) -> String?)?
 ): String? {
     if (string.isEmpty()) return string
     val lex = Lexer(

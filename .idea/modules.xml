@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/kpp.iml" filepath="$PROJECT_DIR$/kpp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kpp.iml" filepath="$PROJECT_DIR$/kpp.iml" group="kpp" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/kpp_linuxMain.iml" filepath="$PROJECT_DIR$/.idea/modules/kpp_linuxMain.iml" group="kpp" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/kpp_linuxTest.iml" filepath="$PROJECT_DIR$/.idea/modules/kpp_linuxTest.iml" group="kpp" />
     </modules>

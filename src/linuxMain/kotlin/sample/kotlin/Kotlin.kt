@@ -13,6 +13,7 @@ import preprocessor.utils.extra.parse
 
 class Kotlin(contents: String) {
     val parseStream = Parser("AABBCCDEE") { it.toStack() }
+
     inner class Lexer {
         val A = parseStream.IsSequenceZeroOrMany("A")
         val B = parseStream.IsSequenceOneOrMany("B")
@@ -21,6 +22,7 @@ class Kotlin(contents: String) {
         val AB = A and B
         val CD = C and D
         val ABCD = AB and C and CD
+
         init {
             ABCD.printList()
             println(parseStream.toStringAsArray())
@@ -30,6 +32,7 @@ class Kotlin(contents: String) {
             println(parseStream.toStringAsArray())
             println(ABCD.pop())
             println(parseStream.toStringAsArray())
+
         }
     }
 

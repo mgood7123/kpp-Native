@@ -31,6 +31,7 @@ fun printHelp() {
     println("-v,  --version                   print version information")
     println("-r,  --repl, -R, --REPL          start a REPL session")
     println("-t, --test                       test the macro preprocessor using its internal testing suite")
+    println("-k,  --kotlin                    print usage")
     println("-, --stdin                       read input from stdin\n" +
             "                                 default if no 'Flags that affect how arguments are processed' are given)"
     )
@@ -38,19 +39,15 @@ fun printHelp() {
     println("Flags that do not affect how arguments are processed")
     println("-d,  --debug,   --debugon        enable debugging")
     println("-dd, --nodebug, --debugoff       disable debugging")
-    abort()
 }
 
 val m = init()
 
 fun processSTDIN() {
-    var line = readLine()
+    var line: String? = readLine()
     while (line != null) {
-        println(parse(line, m, newlineFunction = {
-            val x = readLine()
-            if (x != null) x
-            else abort("failed to grab a new line")
-        }))
+        val r = parse(line, m, newlineFunction = { readLine() }) ?: return
+        println(r)
         line = readLine()
     }
 }
@@ -66,9 +63,7 @@ fun printVersion() {
 
 
 fun main(a: Array<String>) {
-    val l = Kotlin("ABCDEF").Lexer()
-    return
-    Hierarchy().listFiles()
+//    Hierarchy().listFiles()
     if (a.isEmpty()) processSTDIN()
     else a.forEach {
         when(it) {
@@ -78,6 +73,9 @@ fun main(a: Array<String>) {
             "-",  "--stdin" -> processSTDIN()
             "-v", "--version" -> printVersion()
             "-r", "--repl", "-R", "--REPL" -> REPL().REPL()
+            "-t", "--test" -> Tests().doAll()
+            "-k", "--kotlin" -> Kotlin("ABCDEF").Lexer()
+            // flags
             "-d", "--debug", "--debugon" -> {
                 preprocessor.base.globalVariables.flags.debug = true
                 if (a.size == 1) processSTDIN()
@@ -86,7 +84,6 @@ fun main(a: Array<String>) {
                 preprocessor.base.globalVariables.flags.debug = false
                 if (a.size == 1) processSTDIN()
             }
-            "-t", "--test" -> Tests().doAll()
             else -> println(parse(it, m))
         }
     }
