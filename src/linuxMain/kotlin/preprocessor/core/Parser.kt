@@ -1,6 +1,7 @@
 package preprocessor.core
 
 import preprocessor.base.globalVariables
+import preprocessor.utils.`class`.extensions.lastIndex
 import preprocessor.utils.core.abort
 import preprocessor.utils.core.algorithms.Stack
 import preprocessor.utils.`class`.extensions.tokenize
@@ -84,10 +85,12 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
                     tokenList.pop()
                 } catch (e: NoSuchElementException) {
                     null
-                } != null) abort(preprocessor.base.globalVariables.depthAsString() + "token list is corrupted, or the desired exception 'java.util.NoSuchElementException' was not caught")
+                } != null
+            ) abort(preprocessor.base.globalVariables.depthAsString() + "token list is corrupted, or the desired exception 'java.util.NoSuchElementException' was not caught")
             else return null
         }
-        val returnValue = tokenList.pop() ?: abort(preprocessor.base.globalVariables.depthAsString() + "token list is corrupted")
+        val returnValue =
+            tokenList.pop() ?: abort(preprocessor.base.globalVariables.depthAsString() + "token list is corrupted")
         var i = 0
         while (i < returnValue.length) {
             if (returnValue[i] == '\n') {
@@ -124,20 +127,40 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
     }
 
     inner class Types {
+        var AND = 0
+        var OR = 1
+        fun toString(type: Int?): String {
+            return when(type) {
+                AND -> "And"
+                OR -> "Or"
+                null -> "No associated type"
+                else -> "Unknown associated type"
+            }
+        }
         var once: IsSequenceOnce? = null
         var oneOrMany: IsSequenceOneOrMany? = null
         var zeroOrMany: IsSequenceZeroOrMany? = null
+        var type: Int? = null
         fun get(): Any? = when {
             once != null -> once
             oneOrMany != null -> oneOrMany
             zeroOrMany != null -> zeroOrMany
             else -> null
         }
-        fun add(p: Any) = when(p) {
-            is IsSequenceOnce -> once = p
-            is IsSequenceOneOrMany -> oneOrMany = p
-            is IsSequenceZeroOrMany -> zeroOrMany = p
-            else -> println("unsupported type")
+
+        fun add(p: IsSequenceZeroOrMany, type: Int) {
+            this.type = type
+            zeroOrMany = p
+        }
+
+        fun add(p: IsSequenceOneOrMany, type: Int) {
+            this.type = type
+            oneOrMany = p
+        }
+
+        fun add(p: IsSequenceOnce, type: Int) {
+            this.type = type
+            once = p
         }
     }
 
@@ -146,7 +169,7 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
         var f = true
         var par: Parser? = null
         list.forEach {
-            val type = when(it.get()) {
+            val type = when (it.get()) {
                 is IsSequenceOnce -> 1
                 is IsSequenceOneOrMany -> 2
                 is IsSequenceZeroOrMany -> 3
@@ -156,27 +179,25 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
                 }
             }
             if (f) {
-                par = when(type) {
+                par = when (type) {
                     1 -> it.once!!.parent.clone()
                     2 -> it.oneOrMany!!.parent.clone()
                     else -> it.zeroOrMany!!.parent.clone()
                 }
                 f = false
             }
-            val v = when(type) {
+            val v = when (type) {
                 1 -> it.once!!.value
                 2 -> it.oneOrMany!!.value
                 else -> it.zeroOrMany!!.value
             }
             tmp.add(
-                Types().also {
-                    it.add(
-                        when(type) {
-                            1 -> par!!.IsSequenceOnce(v)
-                            2 -> par!!.IsSequenceOneOrMany(v)
-                            else -> par!!.IsSequenceZeroOrMany(v)
-                        }
-                    )
+                Types().also { t ->
+                    when (type) {
+                        1 -> t.add(par!!.IsSequenceOnce(v), it.type!!)
+                        2 -> t.add(par!!.IsSequenceOneOrMany(v), it.type!!)
+                        else -> t.add(par!!.IsSequenceZeroOrMany(v), it.type!!)
+                    }
                 }
             )
         }
@@ -187,14 +208,17 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
         private val parent = this@Parser
         var list: MutableList<Types> = mutableListOf()
         val value: String = str
+        var type: Int? = null
 
         fun printList() = list.forEach {
             val x = it.get()
-            println("it.${when(x) {
-                is IsSequenceOnce -> "once.value = " + x.value + " as IsSequenceOnce"
-                is IsSequenceOneOrMany -> "oneOrMany.value = " + x.value + " as IsSequenceOneOrMany"
-                else -> "zeroOrMany.value = " + (x as IsSequenceZeroOrMany).value + " as IsSequenceZeroOrMany"
-            }}")
+            println(
+                "it.${when (x) {
+                    is IsSequenceOnce -> "once.value = " + x.value + " as IsSequenceOnce"
+                    is IsSequenceOneOrMany -> "oneOrMany.value = " + x.value + " as IsSequenceOneOrMany"
+                    else -> "zeroOrMany.value = " + (x as IsSequenceZeroOrMany).value + " as IsSequenceZeroOrMany"
+                }}"
+            )
         }
 
         override fun toString(): String {
@@ -203,19 +227,19 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             while (x.hasNext()) {
                 val y = x.next().get()
                 if (
-                    when(y) {
+                    when (y) {
                         is IsSequenceOnce -> y.peek()
                         is IsSequenceOneOrMany -> y.peek()
-                        else -> (y as IsSequenceZeroOrMany).peek() 
+                        else -> (y as IsSequenceZeroOrMany).peek()
                     }
                 ) {
-                    val z = when(y) {
+                    val z = when (y) {
                         is IsSequenceOnce -> y.toString()
                         is IsSequenceOneOrMany -> y.toString()
                         else -> (y as IsSequenceZeroOrMany).toString()
                     }
                     if (
-                        when(y) {
+                        when (y) {
                             is IsSequenceOnce -> y.pop()
                             is IsSequenceOneOrMany -> y.pop()
                             else -> (y as IsSequenceZeroOrMany).pop()
@@ -234,14 +258,14 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             while (x.hasNext()) {
                 val y = x.next().get()
                 if (
-                    when(y) {
+                    when (y) {
                         is IsSequenceOnce -> y.peek()
                         is IsSequenceOneOrMany -> y.peek()
                         else -> (y as IsSequenceZeroOrMany).peek()
                     }
                 ) {
                     if (
-                        when(y) {
+                        when (y) {
                             is IsSequenceOnce -> y.pop()
                             is IsSequenceOneOrMany -> y.pop()
                             else -> (y as IsSequenceZeroOrMany).pop()
@@ -261,14 +285,14 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             while (x.hasNext()) {
                 val y = x.next().get()
                 if (
-                    when(y) {
+                    when (y) {
                         is IsSequenceOnce -> y.peek()
                         is IsSequenceOneOrMany -> y.peek()
                         else -> (y as IsSequenceZeroOrMany).peek()
                     }
                 ) {
                     if (
-                        when(y) {
+                        when (y) {
                             is IsSequenceOnce -> y.pop()
                             is IsSequenceOneOrMany -> y.pop()
                             else -> (y as IsSequenceZeroOrMany).pop()
@@ -291,21 +315,21 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
         infix fun and(right: IsSequenceZeroOrMany): Multi {
             val x = parent.clone().Multi(this.value)
             x.list.addAll(this.list)
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right) })
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
             return x
         }
 
         infix fun and(right: IsSequenceOneOrMany): Multi {
             val x = parent.clone().Multi(this.value)
             x.list.addAll(this.list)
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right) })
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
             return x
         }
 
         infix fun and(right: IsSequenceOnce): Multi {
             val x = parent.clone().Multi(this.value)
             x.list.addAll(this.list)
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right) })
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
             return x
         }
     }
@@ -319,15 +343,18 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
         val parent = this@Parser
         var list: MutableList<Types> = mutableListOf()
         val value: String = str
+        var type: Int? = null
         private var seq: IsSequenceOneOrMany = IsSequenceOneOrMany(value)
 
         fun printList() = list.forEach {
             val x = it.get()
-            println("it.${when(x) {
-                is IsSequenceOnce -> "once.value = " + x.value + " as IsSequenceOnce"
-                is IsSequenceOneOrMany -> "oneOrMany.value = " + x.value + " as IsSequenceOneOrMany"
-                else -> "zeroOrMany.value = " + (x as IsSequenceZeroOrMany).value + " as IsSequenceZeroOrMany"
-            }}")
+            println(
+                "it.${when (x) {
+                    is IsSequenceOnce -> "once.value = " + x.value + " as IsSequenceOnce"
+                    is IsSequenceOneOrMany -> "oneOrMany.value = " + x.value + " as IsSequenceOneOrMany"
+                    else -> "zeroOrMany.value = " + (x as IsSequenceZeroOrMany).value + " as IsSequenceZeroOrMany"
+                }}"
+            )
         }
 
         /**
@@ -423,25 +450,26 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
 
         infix fun and(right: IsSequenceZeroOrMany): IsSequenceZeroOrMany {
             val x = parent.clone().IsSequenceZeroOrMany(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right) })
+            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
             return x
         }
 
         infix fun and(right: IsSequenceOneOrMany): Multi {
             val x = parent.clone().Multi(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right) })
+            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
             return x
         }
 
         infix fun and(right: IsSequenceOnce): Multi {
             val x = parent.clone().Multi(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right) })
+            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
             return x
         }
     }
+
     /**
      * matches a sequence of **str** one or more times
      * @see IsSequenceZeroOrMany
@@ -451,14 +479,17 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
         val parent = this@Parser
         var list: MutableList<Types> = mutableListOf()
         val value: String = str
+        var type: Int? = null
 
         fun printList() = list.forEach {
             val x = it.get()
-            println("it.${when(x) {
-                is IsSequenceOnce -> "once.value = " + x.value + " as IsSequenceOnce"
-                is IsSequenceOneOrMany -> "oneOrMany.value = " + x.value + " as IsSequenceOneOrMany"
-                else -> "zeroOrMany.value = " + (x as IsSequenceZeroOrMany).value + " as IsSequenceZeroOrMany"
-            }}")
+            println(
+                "it.${when (x) {
+                    is IsSequenceOnce -> "once.value = " + x.value + " as IsSequenceOnce"
+                    is IsSequenceOneOrMany -> "oneOrMany.value = " + x.value + " as IsSequenceOneOrMany"
+                    else -> "zeroOrMany.value = " + (x as IsSequenceZeroOrMany).value + " as IsSequenceZeroOrMany"
+                }}"
+            )
         }
 
         /**
@@ -577,22 +608,22 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
 
         infix fun and(right: IsSequenceZeroOrMany): Multi {
             val x = parent.clone().Multi(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right) })
+            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
             return x
         }
 
         infix fun and(right: IsSequenceOneOrMany): IsSequenceOneOrMany {
             val x = parent.clone().IsSequenceOneOrMany(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right) })
+            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
             return x
         }
 
         infix fun and(right: IsSequenceOnce): Multi {
             val x = parent.clone().Multi(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right) })
+            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
             return x
         }
     }
@@ -612,14 +643,17 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
     inner class IsSequenceOnce(str: String) {
         val parent = this@Parser
         var list: MutableList<Types> = mutableListOf()
+        var type: Int? = null
 
         fun printList() = list.forEach {
             val x = it.get()
-            println("it.${when(x) {
-                is IsSequenceOnce -> "once.value = " + x.value + " as IsSequenceOnce"
-                is IsSequenceOneOrMany -> "oneOrMany.value = " + x.value + " as IsSequenceOneOrMany"
-                else -> "zeroOrMany.value = " + (x as IsSequenceZeroOrMany).value + " as IsSequenceZeroOrMany"
-            }}")
+            println(
+                "it.${when (x) {
+                    is IsSequenceOnce -> "once.value = " + x.value + " as IsSequenceOnce"
+                    is IsSequenceOneOrMany -> "oneOrMany.value = " + x.value + " as IsSequenceOneOrMany"
+                    else -> "zeroOrMany.value = " + (x as IsSequenceZeroOrMany).value + " as IsSequenceZeroOrMany"
+                }}"
+            )
         }
 
         /**
@@ -674,7 +708,10 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
          * @see toString
          * @see pop
          */
-        fun peek(): Boolean = if (list.size != 0) peekMultiple() else peekSingle()
+        fun peek(): Boolean = if (list.size != 0) {
+            if (type == Types().AND) peekMultipleAnd()
+            else peekMultipleOr()
+        } else peekSingle()
 
         private fun peekSingle(): Boolean {
             val tmp = tokenList.clone()
@@ -687,18 +724,30 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return false
         }
 
-        private fun peekMultiple(): Boolean {
+        private fun peekMultipleAnd(): Boolean {
             val x = cloneList(list).iterator()
             var m = 0
             val max = list.size
             while (x.hasNext()) {
-                val y = x.next().once!!
-                if (y.peek()) {
+                val p = x.next().once!!
+                if (p.peek()) {
                     m++
-                    y.pop()
+                    p.pop()
                 } else break
             }
             if (m == max) return true
+            return false
+        }
+
+        private fun peekMultipleOr(): Boolean {
+            val x = cloneList(list).iterator()
+            while (x.hasNext()) {
+                val p = x.next().once!!
+                if (p.peek()) {
+                    p.pop()
+                    return true
+                }
+            }
             return false
         }
 
@@ -715,7 +764,10 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
          * @see toString
          * @see peek
          */
-        fun pop(): Boolean = if (list.size != 0) popMultiple() else popSingle()
+        fun pop(): Boolean = if (list.size != 0) {
+            if (type == Types().AND) popMultipleAnd()
+            else popMultipleOr()
+        } else popSingle()
 
         private fun popSingle(): Boolean {
             val s = stackMethodFunction(value)
@@ -727,7 +779,7 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return false
         }
 
-        private fun popMultiple(): Boolean {
+        private fun popMultipleAnd(): Boolean {
             val x = list.iterator()
             var m = 0
             val max = list.size
@@ -742,25 +794,940 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return false
         }
 
+        private fun popMultipleOr(): Boolean {
+            val x = list.iterator()
+            while (x.hasNext()) {
+                val y = x.next().once!!
+                if (y.peek()) {
+                    y.pop()
+                    return true
+                } else break
+            }
+            return false
+        }
+
         infix fun and(right: IsSequenceZeroOrMany): Multi {
             val x = parent.clone().Multi(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right) })
+            if (this.type == null || this.type == Types().AND) x.type = Types().AND
+            if (right.type == null || right.type == Types().AND) x.type = Types().AND
+            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
             return x
         }
 
         infix fun and(right: IsSequenceOneOrMany): Multi {
             val x = parent.clone().Multi(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right) })
+            if (this.type == null || this.type == Types().AND) x.type = Types().AND
+            if (right.type == null || right.type == Types().AND) x.type = Types().AND
+            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
             return x
         }
 
-        infix fun and(right: IsSequenceOnce): IsSequenceOnce {
-            val x = parent.clone().IsSequenceOnce(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right) })
+        infix fun and(right: IsSequenceOnce): Combination {
+            val y = Combination()
+            val x = parent.clone().Multi(this.value)
+            if (this.type == null || this.type == Types().AND) x.type = Types().AND
+            if (right.type == null || right.type == Types().AND) x.type = Types().AND
+            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
+            y.add(x, Types().AND)
+            return y
+        }
+
+        infix fun or(right: IsSequenceZeroOrMany): Multi {
+            val x = parent.clone().Multi(this.value)
+            if (this.type == null || this.type == Types().OR) x.type = Types().OR
+            if (right.type == null || right.type == Types().OR) x.type = Types().OR
+            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
             return x
+        }
+
+        infix fun or(right: IsSequenceOneOrMany): Multi {
+            val x = parent.clone().Multi(this.value)
+            if (this.type == null || this.type == Types().OR) x.type = Types().OR
+            if (right.type == null || right.type == Types().OR) x.type = Types().OR
+            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
+            return x
+        }
+
+        infix fun or(right: IsSequenceOnce): Combination {
+            val y = Combination()
+            val x = parent.clone().Multi(this.value)
+            if (this.type == null || this.type == Types().OR) x.type = Types().OR
+            if (right.type == null || right.type == Types().OR) x.type = Types().OR
+            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
+            y.add(x, Types().OR)
+            return y
+        }
+    }
+
+    inner class Combination() {
+        inner class LIST {
+            var type: Int? = null
+            var list: Multi? = null
+        }
+
+        val parent = this@Parser
+        var list: MutableList<LIST> = mutableListOf()
+        fun add(List: Multi, type: Int) {
+            // append list in order
+            if (list.size != 0) {
+                val t = list.lastIndex()
+                if (t.type == Types().AND) {
+                    if (type == Types().AND) {
+                        t.list = t.list!! and List
+                    } else {
+                        val x = LIST()
+                        x.type = type
+                        x.list = List
+                        list.add(x)
+                    }
+                } else {
+                    if (type == Types().AND) {
+                        val x = LIST()
+                        x.type = type
+                        x.list = List
+                        list.add(x)
+                    } else {
+                        t.list = t.list!! and List
+                    }
+                }
+            } else {
+                val x = LIST()
+                x.type = type
+                x.list = List
+                list.add(x)
+            }
+        }
+
+        fun printList() = list.forEach {
+            it.list!!.printList()
+        }
+
+        infix fun and(right: GroupCombination): GroupCombination = Group(this) and right
+
+        infix fun and(right: Group): GroupCombination = Group(this) and right
+
+        infix fun and(right: Combination): Combination {
+            // append list in order
+            if (list.size != 0) {
+                val t = this.list.lastIndex()
+                val ths = t.list!!
+                if (t.type == Types().AND) {
+                    right.list.forEach {
+                        t.list = t.list!! and it.list!!
+                    }
+                } else {
+                    val x = LIST()
+                    x.type = Types().AND
+                    right.list.forEach {
+                        x.list = x.list!! and it.list!!
+                    }
+                    list.add(x)
+                }
+            } else {
+                val x = LIST()
+                x.type = Types().AND
+                right.list.forEach {
+                    x.list = x.list!! and it.list!!
+                }
+                list.add(x)
+            }
+            return this
+        }
+
+        infix fun and(right: Multi): Combination {
+            // append list in order
+            if (this.list.size != 0) {
+                val t = this.list.lastIndex()
+                val ths = t.list!!
+                if (t.type == Types().AND) {
+                    t.list = t.list!! and right
+                } else {
+                    val x = LIST()
+                    x.type = Types().AND
+                    x.list = Multi(right.value).also { it.list.addAll(right.list) }
+                    list.add(x)
+                }
+            } else {
+                val x = LIST()
+                x.type = Types().AND
+                x.list = Multi(right.value).also { it.list.addAll(right.list) }
+                list.add(x)
+            }
+            return this
+        }
+
+        infix fun and(right: IsSequenceZeroOrMany): Combination {
+            // append list in order
+            if (this.list.size != 0) {
+                val t = this.list.lastIndex()
+                val ths = t.list!!
+                if (t.type == Types().AND) {
+                    t.list = t.list!! and right
+                } else {
+                    val x = LIST()
+                    x.type = Types().AND
+                    x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
+                    list.add(x)
+                }
+            } else {
+                val x = LIST()
+                x.type = Types().AND
+                x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
+                list.add(x)
+            }
+            return this
+        }
+
+        infix fun and(right: IsSequenceOneOrMany): Combination {
+            // append list in order
+            if (this.list.size != 0) {
+                val t = this.list.lastIndex()
+                val ths = t.list!!
+                if (t.type == Types().AND) {
+                    t.list = t.list!! and right
+                } else {
+                    val x = LIST()
+                    x.type = Types().AND
+                    x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
+                    list.add(x)
+                }
+            } else {
+                val x = LIST()
+                x.type = Types().AND
+                x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
+                list.add(x)
+            }
+            return this
+        }
+
+        infix fun and(right: IsSequenceOnce): Combination {
+            // append list in order
+            if (this.list.size != 0) {
+                val t = this.list.lastIndex()
+                val ths = t.list!!
+                if (t.type == Types().AND) {
+                    t.list = t.list!! and right
+                } else {
+                    val x = LIST()
+                    x.type = Types().AND
+                    x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
+                    list.add(x)
+                }
+            } else {
+                val x = LIST()
+                x.type = Types().AND
+                x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
+                list.add(x)
+            }
+            return this
+        }
+
+        infix fun or(right: Combination): Combination {
+            // append list in order
+            if (list.size != 0) {
+                val t = this.list.lastIndex()
+                val ths = t.list!!
+                if (t.type == Types().OR) {
+                    right.list.forEach {
+                        t.list = t.list!! and it.list!!
+                    }
+                } else {
+                    val x = LIST()
+                    x.type = Types().OR
+                    right.list.forEach {
+                        x.list = x.list!! and it.list!!
+                    }
+                    list.add(x)
+                }
+            } else {
+                val x = LIST()
+                x.type = Types().OR
+                right.list.forEach {
+                    x.list = x.list!! and it.list!!
+                }
+                list.add(x)
+            }
+            return this
+        }
+
+        infix fun or(right: Multi): Combination {
+            // append list in order
+            if (this.list.size != 0) {
+                val t = this.list.lastIndex()
+                val ths = t.list!!
+                if (t.type == Types().OR) {
+                    t.list = t.list!! and right
+                } else {
+                    val x = LIST()
+                    x.type = Types().OR
+                    x.list = Multi(right.value).also { it.list.addAll(right.list) }
+                    list.add(x)
+                }
+            } else {
+                val x = LIST()
+                x.type = Types().OR
+                x.list = Multi(right.value).also { it.list.addAll(right.list) }
+                list.add(x)
+            }
+            return this
+        }
+
+        infix fun or(right: IsSequenceZeroOrMany): Combination {
+            // append list in order
+            if (this.list.size != 0) {
+                val t = this.list.lastIndex()
+                val ths = t.list!!
+                if (t.type == Types().OR) {
+                    t.list = t.list!! and right
+                } else {
+                    val x = LIST()
+                    x.type = Types().OR
+                    x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
+                    list.add(x)
+                }
+            } else {
+                val x = LIST()
+                x.type = Types().OR
+                x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
+                list.add(x)
+            }
+            return this
+        }
+
+        infix fun or(right: IsSequenceOneOrMany): Combination {
+            // append list in order
+            if (this.list.size != 0) {
+                val t = this.list.lastIndex()
+                val ths = t.list!!
+                if (t.type == Types().OR) {
+                    t.list = t.list!! and right
+                } else {
+                    val x = LIST()
+                    x.type = Types().OR
+                    x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
+                    list.add(x)
+                }
+            } else {
+                val x = LIST()
+                x.type = Types().OR
+                x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
+                list.add(x)
+            }
+            return this
+        }
+
+        infix fun or(right: IsSequenceOnce): Combination {
+            // append list in order
+            if (this.list.size != 0) {
+                val t = this.list.lastIndex()
+                val ths = t.list!!
+                if (t.type == Types().OR) {
+                    t.list = t.list!! and right
+                } else {
+                    val x = LIST()
+                    x.type = Types().OR
+                    x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
+                    list.add(x)
+                }
+            } else {
+                val x = LIST()
+                x.type = Types().OR
+                x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
+                list.add(x)
+            }
+            return this
+        }
+    }
+
+    fun Group(parsers: GroupCombination): GroupCombination {
+
+        return parsers
+    }
+
+    fun Group(parsers: Group): GroupCombination {
+        // promote to GroupCombination
+        val x = GroupCombination()
+        x.add(parsers, parsers.list[0].type!!)
+        return x
+    }
+
+    fun Group(parsers: Combination): Group {
+        val x = Group()
+        x.add(parsers)
+        return x
+    }
+
+    fun Group(parsers: Multi): Group {
+        val z = Group()
+        z.add(parsers, Types().AND)
+        return z
+    }
+
+    fun Group(parsers: IsSequenceZeroOrMany): Group {
+        val z = Group()
+        z.add(Multi(parsers.value).also { it.list.add(Types().also { it.add(parsers, it.AND) }) }, Types().AND)
+        return z
+    }
+
+    fun Group(parsers: IsSequenceOneOrMany): Group {
+        val z = Group()
+        z.add(Multi(parsers.value).also { it.list.add(Types().also { it.add(parsers, it.AND) }) }, Types().AND)
+        return z
+    }
+
+    fun Group(parsers: IsSequenceOnce): GroupCombination {
+        val z = Group()
+        z.add(Multi(parsers.value).also { it.list.add(Types().also { it.add(parsers, it.AND) }) }, Types().AND)
+        val c = GroupCombination()
+        // append existing group
+        c.add(z, z.list[0].type!!)
+        return c
+    }
+
+    inner class Group() {
+
+        inner class LIST {
+            var type: Int? = null
+            var list: Combination? = null
+        }
+
+        val parent = this@Parser
+        var list: MutableList<LIST> = mutableListOf()
+        fun add(parsers: Combination) {
+            val x = LIST()
+            x.type = parsers.list[0].type!!
+            x.list = parsers
+            list.add(x)
+        }
+
+        fun add(List: Multi, type: Int) {
+            // append list in order
+            if (list.size != 0) {
+                val t = list.lastIndex()
+                if (t.type == Types().AND) {
+                    if (type == Types().AND) {
+                        t.list = t.list!! and List
+                    } else {
+                        val x = LIST()
+                        x.type = type
+                        // promote to combination
+                        val y = Combination()
+                        y.add(List, Types().AND)
+                        x.list = y
+                        list.add(x)
+                    }
+                } else {
+                    if (type == Types().AND) {
+                        val x = LIST()
+                        x.type = type
+                        // promote to combination
+                        val y = Combination()
+                        y.add(List, Types().AND)
+                        x.list = y
+                        list.add(x)
+                    } else {
+                        t.list = t.list!! and List
+                    }
+                }
+            } else {
+                val x = LIST()
+                x.type = type
+                // promote to combination
+                val y = Combination()
+                y.add(List, Types().AND)
+                x.list = y
+                list.add(x)
+            }
+        }
+
+        fun printList() = list.forEach {
+            it.list!!.printList()
+        }
+
+        infix fun and (right: GroupCombination): GroupCombination {
+            // promote to GroupCombination
+            val c = GroupCombination()
+            c.add(this, this.list[0].type!!)
+            return c and right
+        }
+
+        infix fun and(right: Group): GroupCombination {
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing group
+            c.add(this, this.list[0].type!!)
+            c.add(right, Types().AND)
+            return c
+        }
+
+        infix fun and(right: Combination): GroupCombination {
+            // promote to Group
+            val g = Group(right)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing group
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().AND)
+            return c
+        }
+
+        infix fun and(right: Multi): GroupCombination {
+            // promote to combination
+            val y = Combination()
+            y.add(right, Types().AND)
+            // promote to Group
+            val g = Group(y)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing group
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().AND)
+            return c
+        }
+
+        infix fun and(right: IsSequenceZeroOrMany): GroupCombination {
+            // promote to Multi
+            val x = parent.clone().Multi(right.value)
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
+            // promote to combination
+            val y = Combination()
+            y.add(x, Types().AND)
+            // promote to Group
+            val g = Group(y)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing group
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().AND)
+            return c
+        }
+
+        infix fun and(right: IsSequenceOneOrMany): GroupCombination {
+            // promote to Multi
+            val x = parent.clone().Multi(right.value)
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
+            // promote to combination
+            val y = Combination()
+            y.add(x, Types().AND)
+            // promote to Group
+            val g = Group(y)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing group
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().AND)
+            return c
+        }
+
+        infix fun and(right: IsSequenceOnce): GroupCombination {
+            // promote to Multi
+            val x = parent.clone().Multi(right.value)
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
+            // promote to combination
+            val y = Combination()
+            y.add(x, Types().AND)
+            // promote to Group
+            val g = Group(y)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing group
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().AND)
+            return c
+        }
+        
+        infix fun or(right: GroupCombination): GroupCombination {
+            // promote to GroupCombination
+            val c = GroupCombination()
+            c.add(this, this.list[0].type!!)
+            return c or right
+        }
+
+        infix fun or(right: Group): GroupCombination {
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing group
+            c.add(this, this.list[0].type!!)
+            c.add(right, Types().OR)
+            return c
+        }
+
+        infix fun or (right: Combination): GroupCombination {
+            // promote to Group
+            val g = Group(right)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing group
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().AND)
+            return c
+        }
+
+        infix fun or(right: Multi): GroupCombination {
+            // promote to combination
+            val y = Combination()
+            y.add(right, Types().OR)
+            // promote to Group
+            val g = Group(y)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing group
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().OR)
+            return c
+        }
+
+        infix fun or(right: IsSequenceZeroOrMany): GroupCombination {
+            // promote to Multi
+            val x = parent.clone().Multi(right.value)
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
+            // promote to combination
+            val y = Combination()
+            y.add(x, Types().OR)
+            // promote to Group
+            val g = Group(y)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing group
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().OR)
+            return c
+        }
+
+        infix fun or(right: IsSequenceOneOrMany): GroupCombination {
+            // promote to Multi
+            val x = parent.clone().Multi(right.value)
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
+            // promote to combination
+            val y = Combination()
+            y.add(x, Types().OR)
+            // promote to Group
+            val g = Group(y)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing group
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().OR)
+            return c
+        }
+
+        infix fun or(right: IsSequenceOnce): GroupCombination {
+            // promote to Multi
+            val x = parent.clone().Multi(right.value)
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
+            // promote to combination
+            val y = Combination()
+            y.add(x, Types().OR)
+            // promote to Group
+            val g = Group(y)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing group
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().OR)
+            return c
+        }
+    }
+
+    inner class GroupCombination() {
+        inner class LIST {
+            var type: Int? = null
+            var list: Group? = null
+        }
+
+        val parent = this@Parser
+        var list: MutableList<LIST> = mutableListOf()
+        fun add(List: Group, type: Int) {
+            val x = LIST()
+            x.type = type
+            x.list = List
+            list.add(x)
+            return
+            // append list in order
+            if (list.size != 0) {
+                val t = list.lastIndex()
+                if (t.type == Types().AND) {
+                    if (type == Types().AND) {
+                        // if both are AND types
+                        if (List.list.size != 0) {
+                            List.list.forEach {
+                                var left = t.list!!
+                                var right = it.list!!
+                                // append list in order
+                                if (left.list.size != 0) {
+                                    val t = left.list.lastIndex()
+                                    val ths = t.list!!
+                                    if (t.type == Types().AND) {
+                                        t.list = t.list!! and right
+                                    } else {
+                                        val x = left.LIST()
+                                        x.type = Types().AND
+                                        x.list = right
+                                        left.list.add(x)
+                                    }
+                                } else {
+                                    val x = left.LIST()
+                                    x.type = Types().AND
+                                    x.list = right
+                                    left.list.add(x)
+                                }
+                                t.list = left
+                            }
+                        }
+                    } else {
+                        val x = LIST()
+                        x.type = type
+                        x.list = List
+                        list.add(x)
+                    }
+                } else {
+                    if (type == Types().OR) {
+                        // if both types are OR types
+                        if (List.list.size != 0) {
+                            List.list.forEach {
+                                var left = t.list!!
+                                var right = it.list!!
+                                // append list in order
+                                if (left.list.size != 0) {
+                                    val t = left.list.lastIndex()
+                                    val ths = t.list!!
+                                    if (t.type == Types().OR) {
+                                        t.list = t.list!! or right
+                                    } else {
+                                        val x = left.LIST()
+                                        x.type = Types().OR
+                                        x.list = right
+                                        left.list.add(x)
+                                    }
+                                } else {
+                                    val x = left.LIST()
+                                    x.type = Types().OR
+                                    x.list = right
+                                    left.list.add(x)
+                                }
+                                t.list = left
+                            }
+                        }
+                    } else {
+                        // if both types differ
+                        val x = LIST()
+                        x.type = type
+                        x.list = List
+                        list.add(x)
+                    }
+                }
+            } else {
+                val x = LIST()
+                x.type = type
+                x.list = List
+                list.add(x)
+            }
+        }
+
+        fun add(List: GroupCombination, type: Int) {
+            // append list in order
+            List.list.forEach {
+                list.add(it)
+            }
+        }
+
+        fun printList() {
+            list.forEach {
+                println("group ${list.indexOf(it)}: ${Types().toString(it.type)}")
+                it.list!!.printList()
+            }
+        }
+
+        infix fun and(right: GroupCombination): GroupCombination {
+            val g = GroupCombination()
+            // append existing groupCombination
+            g.add(this, this.list[0].type!!)
+            g.add(right, right.list[0].type!!)
+            return g
+        }
+
+        infix fun and(right: Group): GroupCombination {
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing groupCombination
+            c.add(this, this.list[0].type!!)
+            c.add(right, Types().AND)
+            return c
+        }
+
+        infix fun and(right: Combination): GroupCombination {
+            // promote to Group
+            val g = Group(right)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing groupCombination
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().AND)
+            return c
+        }
+
+        infix fun and(right: Multi): GroupCombination {
+            // promote to combination
+            val y = Combination()
+            y.add(right, Types().AND)
+            // promote to Group
+            val g = Group(y)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing groupCombination
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().AND)
+            return c
+        }
+
+        infix fun and(right: IsSequenceZeroOrMany): GroupCombination {
+            // promote to Multi
+            val x = parent.clone().Multi(right.value)
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
+            // promote to combination
+            val y = Combination()
+            y.add(x, Types().AND)
+            // promote to Group
+            val g = Group(y)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing groupCombination
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().AND)
+            return c
+        }
+
+        infix fun and(right: IsSequenceOneOrMany): GroupCombination {
+            // promote to Multi
+            val x = parent.clone().Multi(right.value)
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
+            // promote to combination
+            val y = Combination()
+            y.add(x, Types().AND)
+            // promote to Group
+            val g = Group(y)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing groupCombination
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().AND)
+            return c
+        }
+
+        infix fun and(right: IsSequenceOnce): GroupCombination {
+            // promote to Multi
+            val x = parent.clone().Multi(right.value)
+            x.list.add(Types().also { it.add(right, it.AND) })
+            // promote to combination
+            val y = Combination()
+            y.add(x, Types().AND)
+            // promote to Group
+            val g = Group(y)
+            val c = GroupCombination()
+            // append existing groupCombination
+            c.add(this, this.list[0].type!!)
+            // promote to GroupCombination
+            c.add(g, Types().AND)
+            return c
+        }
+
+        infix fun or(right: GroupCombination): GroupCombination {
+            val c = GroupCombination()
+            // append existing groupCombination
+            c.add(this, this.list[0].type!!)
+            c.add(right, Types().OR)
+            return c
+        }
+
+        infix fun or(right: Group): GroupCombination {
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing groupCombination
+            c.add(this, this.list[0].type!!)
+            c.add(right, Types().OR)
+            return c
+        }
+
+        infix fun or (right: Combination): GroupCombination {
+            // promote to Group
+            val g = Group(right)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing groupCombination
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().AND)
+            return c
+        }
+
+        infix fun or(right: Multi): GroupCombination {
+            // promote to combination
+            val y = Combination()
+            y.add(right, Types().OR)
+            // promote to Group
+            val g = Group(y)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing groupCombination
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().OR)
+            return c
+        }
+
+        infix fun or(right: IsSequenceZeroOrMany): GroupCombination {
+            // promote to Multi
+            val x = parent.clone().Multi(right.value)
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
+            // promote to combination
+            val y = Combination()
+            y.add(x, Types().OR)
+            // promote to Group
+            val g = Group(y)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing groupCombination
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().OR)
+            return c
+        }
+
+        infix fun or(right: IsSequenceOneOrMany): GroupCombination {
+            // promote to Multi
+            val x = parent.clone().Multi(right.value)
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
+            // promote to combination
+            val y = Combination()
+            y.add(x, Types().OR)
+            // promote to Group
+            val g = Group(y)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing groupCombination
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().OR)
+            return c
+        }
+
+        infix fun or(right: IsSequenceOnce): GroupCombination {
+            // promote to Multi
+            val x = parent.clone().Multi(right.value)
+            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
+            // promote to combination
+            val y = Combination()
+            y.add(x, Types().OR)
+            // promote to Group
+            val g = Group(y)
+            // promote to GroupCombination
+            val c = GroupCombination()
+            // append existing groupCombination
+            c.add(this, this.list[0].type!!)
+            c.add(g, Types().OR)
+            return c
         }
     }
 }

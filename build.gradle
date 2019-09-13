@@ -19,7 +19,7 @@ kotlin {
             }
             executable([RELEASE]) {
                 entryPoint = 'sample.main'
-                runTask?.args('-t')
+                runTask?.args('-k')
             }
         }
     }
