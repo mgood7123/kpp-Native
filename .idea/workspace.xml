@@ -2,20 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="05383308-e3c5-4cb9-b304-d7ec7071a732" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/modules/kpp.linuxMain.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/kpp.linuxTest.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/kpp_Native___runReleaseExecutableLinux_.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/linuxMain/kotlin/preprocessor/utils/class/extensions/List.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/4.10/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/4.10/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/4.10/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/4.10/fileHashes/fileHashes.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/4.10/taskHistory/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/4.10/taskHistory/taskHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/4.10/taskHistory/taskHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/4.10/taskHistory/taskHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/kpp_linuxMain.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/kpp_linuxMain.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/kpp_linuxTest.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/kpp_linuxTest.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/kpp.linuxMain.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/kpp.linuxMain.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/kpp.linuxTest.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/kpp.linuxTest.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/bin/linux/releaseExecutable/kpp.kexe" beforeDir="false" afterPath="$PROJECT_DIR$/build/bin/linux/releaseExecutable/kpp.kexe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/linuxMain/kotlin/preprocessor/core/Parser.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/linuxMain/kotlin/preprocessor/core/Parser.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/linuxMain/kotlin/sample/kotlin/Kotlin.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/linuxMain/kotlin/sample/kotlin/Kotlin.kt" afterDir="false" />
@@ -124,7 +118,14 @@
       <option name="project" value="LOCAL" />
       <updated>1568202348663</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="added or (`A or B`) and grouping (`Group(A and B) or B`)&#10;added other improvements">
+      <created>1568374548063</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1568374548063</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -142,6 +143,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="added -k, --kotlin, revised EOF errors" />
-    <option name="LAST_COMMIT_MESSAGE" value="added -k, --kotlin, revised EOF errors" />
+    <MESSAGE value="added grouping (`Group(A and B) or B`)&#10;added other improvements" />
+    <MESSAGE value="added or (`A or B`) and grouping (`Group(A and B) or B`)&#10;added other improvements" />
+    <option name="LAST_COMMIT_MESSAGE" value="added or (`A or B`) and grouping (`Group(A and B) or B`)&#10;added other improvements" />
   </component>
 </project>

@@ -18,8 +18,15 @@ class Kotlin(contents: String) {
     inner class Lexer {
         val A1 = X.IsSequenceOnce("1")
         val B1 = X.IsSequenceOnce("2")
-        val lists = X.Group(A1 and B1) and X.Group(X.Group(A1 and A1) or B1)
-        // ((A) and (B)) and (((A) and (A)) or (B))
+        val lists = X.Group(A1 and B1) and X.Group(X.Group(A1 and A1) or B1) // depth 2, 2, 1
+//        val lists = X.Group(X.Group(X.Group(X.Group(A1 and X.Group(B1 and B1)) or A1) or B1) and B1) and A1
+//        val lists = A1 and X.Group(B1) // depth 0, 1
+//        val lists = X.Group(A1 and X.Group(B1)) // depth 1, 2
+//        val lists = A1 and X.Group(A1 and X.Group(B1)) // depth 0, 1, 2
+//        val lists = A1 and X.Group(B1) // depth 0, 1
+//        val lists = X.Group(A1 and B1) // depth 1
+//        val lists = X.Group(A1 and B1) and X.Group(A1 and B1) // depth 1, 1
+        // (1 and 2) and ((1 and 1) or 2)
         // (1 && 2) && ((1 && 1) || 2)
         // will match 1211
         // left 1211
