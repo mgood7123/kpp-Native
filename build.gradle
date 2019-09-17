@@ -15,7 +15,7 @@ kotlin {
         binaries {
             executable([DEBUG]) {
                 entryPoint = 'sample.main'
-                runTask?.args('-t')
+                runTask?.args('-k')
             }
             executable([RELEASE]) {
                 entryPoint = 'sample.main'

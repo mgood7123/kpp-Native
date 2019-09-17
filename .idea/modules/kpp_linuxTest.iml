@@ -29,7 +29,7 @@
     <output-test url="file://$MODULE_DIR$/../../build/classes/kotlin/linux/test" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../src/linuxTest/kotlin">
-      <sourceFolder url="file://$MODULE_DIR$/../../src/linuxTest/kotlin" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../src/linuxTest/kotlin" type="kotlin-test" />
     </content>
     <content url="file://$MODULE_DIR$/../../src/linuxTest/resources" />
     <orderEntry type="jdk" jdkName="Kotlin SDK" jdkType="KotlinSDK" />
@@ -41,6 +41,7 @@
     <orderEntry type="library" scope="PROVIDED" name="Kotlin/Native 1.3.30 - stdlib" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Kotlin/Native 1.3.30 - linux [linux_x64]" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Kotlin/Native 1.3.30 - zlib [linux_x64]" level="project" />
+    <orderEntry type="library" scope="TEST" name="KotlinJavaRuntime" level="project" />
   </component>
   <component name="TestModuleProperties" production-module="kpp_linuxMain" />
 </module>

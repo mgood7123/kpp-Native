@@ -18,7 +18,7 @@ class Kotlin(contents: String) {
     inner class Lexer {
         val A1 = X.IsSequenceOnce("1")
         val B1 = X.IsSequenceOnce("2")
-        val lists = X.Group(A1 and B1) and X.Group(X.Group(A1 and A1) or B1) // depth 2, 2, 1
+        //        val lists = X.Group(A1 and B1) and X.Group(X.Group(A1 and A1) or B1) // depth 2, 2, 1
 //        val lists = X.Group(X.Group(X.Group(X.Group(A1 and X.Group(B1 and B1)) or A1) or B1) and B1) and A1
 //        val lists = A1 and X.Group(B1) // depth 0, 1
 //        val lists = X.Group(A1 and X.Group(B1)) // depth 1, 2
@@ -26,6 +26,85 @@ class Kotlin(contents: String) {
 //        val lists = A1 and X.Group(B1) // depth 0, 1
 //        val lists = X.Group(A1 and B1) // depth 1
 //        val lists = X.Group(A1 and B1) and X.Group(A1 and B1) // depth 1, 1
+//        val lists = X.Group(A1 and A1) or B1
+        /*
+groupCombination 0: And
+group 0 (depth 1): And
+it.once.value = 1 as IsSequenceOnce
+it.once.value = 1 as IsSequenceOnce
+groupCombination 1: Or
+group 0 (depth 0): Or
+it.once.value = 2 as IsSequenceOnce
+         */
+//        val lists = X.Group(X.Group(A1 and A1) or B1)
+        /*
+groupCombination 0: And
+group 0 (depth 2): And
+it.once.value = 1 as IsSequenceOnce
+it.once.value = 1 as IsSequenceOnce
+groupCombination 1: Or
+group 0 (depth 1): Or
+it.once.value = 2 as IsSequenceOnce
+         */
+        val lists = X.Group(X.Group(X.Group(A1 and B1))) or X.Group(X.Group(A1 and A1) or B1)
+        /*
+(((1 and 2))) or ((1 and 1) or 2)
+(((1 && 2))) || ((1 && 1) || 2)
+(((true && false))) || ((true && true) || false)
+true || (true || false)
+groupCombination 0: Or
+group 0 (depth 4): And
+it.once.value = 1 as IsSequenceOnce And
+it.once.value = 2 as IsSequenceOnce And
+groupCombination 1: Or
+group 0 (depth 2): And
+it.once.value = 1 as IsSequenceOnce And
+it.once.value = 1 as IsSequenceOnce And
+groupCombination 2: Or
+group 0 (depth 1): Or
+it.once.value = 2 as IsSequenceOnce Or
+         */
+//        val lists = X.Group(X.Group(X.Group(A1 and B1)) or X.Group(A1 and A1) or B1)
+        /*
+(((1 and 2)) or (1 and 1) or 2)
+(((1 && 2)) || (1 && 1) || 2)
+(((true && false)) || (true && true) || false)
+true || true || false
+groupCombination 0: Or
+group 0 (depth 4): And
+it.once.value = 1 as IsSequenceOnce And
+it.once.value = 2 as IsSequenceOnce And
+groupCombination 1: Or
+group 0 (depth 3): And
+it.once.value = 1 as IsSequenceOnce And
+it.once.value = 1 as IsSequenceOnce And
+groupCombination 2: Or
+group 0 (depth 1): Or
+it.once.value = 2 as IsSequenceOnce Or
+         */
+//        val lists = A1 or X.Group(A1 or B1)
+        /*
+1 or (1 or 2)
+1 || (1 || 2)
+true || (true || false)
+true || true
+groupCombination 0: Or
+group 0 (depth 0): Or
+it.once.value = 1 as IsSequenceOnce Or
+groupCombination 1: Or
+group 0 (depth 1): Or
+it.once.value = 1 as IsSequenceOnce Or
+it.once.value = 2 as IsSequenceOnce Or
+         */
+//        val lists = A1 or A1 or B1
+        /*
+1 or 1 or 2
+1 || 1 || 2
+true || true || false
+it.once.value = 1 as IsSequenceOnce Or
+it.once.value = 1 as IsSequenceOnce Or
+it.once.value = 2 as IsSequenceOnce Or
+         */
         // (1 and 2) and ((1 and 1) or 2)
         // (1 && 2) && ((1 && 1) || 2)
         // will match 1211

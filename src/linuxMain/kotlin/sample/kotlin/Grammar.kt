@@ -13,7 +13,7 @@ class Grammar {
         lex.lex()
         if (lex.currentLine == null) return
         while (lex.currentLine != null) {
-            lex
+//            lex
             lex.lex()
         }
     }

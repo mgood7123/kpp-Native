@@ -1,17 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+    <generated />
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="05383308-e3c5-4cb9-b304-d7ec7071a732" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/kpp_Native___runDebugExecutableLinux__.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/projectFilesBackup/.idea/modules/kpp_linuxTest.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/4.10/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/4.10/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/4.10/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/4.10/fileHashes/fileHashes.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/4.10/taskHistory/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/4.10/taskHistory/taskHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/4.10/taskHistory/taskHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/4.10/taskHistory/taskHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/kpp.linuxMain.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/kpp.linuxMain.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/kpp.linuxTest.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/kpp.linuxTest.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/kpp_linuxMain.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/kpp_linuxMain.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/kpp_linuxTest.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/kpp_linuxTest.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/bin/linux/debugExecutable/kpp.kexe" beforeDir="false" afterPath="$PROJECT_DIR$/build/bin/linux/debugExecutable/kpp.kexe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/bin/linux/releaseExecutable/kpp.kexe" beforeDir="false" afterPath="$PROJECT_DIR$/build/bin/linux/releaseExecutable/kpp.kexe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/linuxMain/kotlin/preprocessor/core/Parser.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/linuxMain/kotlin/preprocessor/core/Parser.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/linuxMain/kotlin/sample/kotlin/Grammar.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/linuxMain/kotlin/sample/kotlin/Grammar.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/linuxMain/kotlin/sample/kotlin/Kotlin.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/linuxMain/kotlin/sample/kotlin/Kotlin.kt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,6 +35,9 @@
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
   </component>
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
@@ -50,9 +69,16 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="InvalidFacetManager">
+    <ignored-facets>
+      <facet id="kpp_linuxMain/invalid/Kotlin" />
+      <facet id="kpp_linuxTest/invalid/Kotlin" />
+    </ignored-facets>
+  </component>
   <component name="ProjectId" id="1QgYjDccgAvLMq91VDGNWrofeu7" />
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="android.sdk.path" value="$USER_HOME$/Android_SDK" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="not.eligible.for.single.variant.sync" value="true" />
@@ -74,7 +100,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Gradle.kpp-Native [:runReleaseExecutableLinux]">
     <configuration default="true" type="AndroidJUnit">
       <option name="TEST_OBJECT" value="class" />
       <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
@@ -99,6 +125,10 @@
       <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Gradle.kpp-Native [:runReleaseExecutableLinux]" />
+      <item itemvalue="Gradle.kpp-Native [:runDebugExecutableLinux] " />
+    </list>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -110,6 +140,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1558072508614</updated>
+      <workItem from="1568616613398" duration="116000" />
+      <workItem from="1568616790817" duration="455000" />
     </task>
     <task id="LOCAL-00001" summary="added -k, --kotlin, revised EOF errors">
       <created>1568202348662</created>
@@ -127,6 +159,9 @@
     </task>
     <option name="localTasksCounter" value="3" />
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
