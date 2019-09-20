@@ -5,6 +5,7 @@ import preprocessor.utils.`class`.extensions.lastIndex
 import preprocessor.utils.core.abort
 import preprocessor.utils.core.algorithms.Stack
 import preprocessor.utils.`class`.extensions.tokenize
+import preprocessor.utils.core.algorithms.Tree
 
 /**
  * a minimal Parser implementation
@@ -308,23 +309,15 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return false
         }
 
-        infix fun and(right: GroupCombination): GroupCombination {
-            // promote to combination
-            val y = Combination()
-            y.add(this, Types().AND)
-            return y and right
+        fun promoteToAbstractSyntaxTree(type: Int): AbstractSyntaxTree {
+            val y = AbstractSyntaxTree()
+            y.add(this, type)
+            return y
         }
 
-        infix fun and(right: Group): GroupCombination {
-            // promote to combination
-            val y = Combination()
-            y.add(this, Types().AND)
-            return y and right
-        }
-
-        infix fun and(right: Combination): Combination {
-            // promote to combination
-            val y = Combination()
+        infix fun and(right: AbstractSyntaxTree): AbstractSyntaxTree {
+            // promote to AbstractSyntaxTree
+            val y = AbstractSyntaxTree()
             y.add(this, Types().AND)
             return y and right
         }
@@ -363,23 +356,9 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return x
         }
 
-        infix fun or(right: GroupCombination): GroupCombination {
-            // promote to combination
-            val y = Combination()
-            y.add(this, Types().OR)
-            return y or right
-        }
-
-        infix fun or(right: Group): GroupCombination {
-            // promote to combination
-            val y = Combination()
-            y.add(this, Types().OR)
-            return y or right
-        }
-
-        infix fun or(right: Combination): Combination {
-            // promote to combination
-            val y = Combination()
+        infix fun or(right: AbstractSyntaxTree): AbstractSyntaxTree {
+            // promote to AbstractSyntaxTree
+            val y = AbstractSyntaxTree()
             y.add(this, Types().OR)
             return y or right
         }
@@ -417,6 +396,7 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
             return x
         }
+
     }
 
     /**
@@ -533,87 +513,37 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return false
         }
 
-        infix fun and(right: GroupCombination): GroupCombination = right and this
-
-        infix fun and(right: Group): GroupCombination = right and this
-
-        infix fun and(right: Combination): Combination = right and this
-
-        infix fun and(right: Multi): Multi = right and this
-
-        infix fun and(right: IsSequenceZeroOrMany): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().AND) x.type = Types().AND
-            if (right.type == null || right.type == Types().AND) x.type = Types().AND
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
-            y.add(x, Types().AND)
+        fun promoteToAbstractSyntaxTree(type: Int): AbstractSyntaxTree {
+            val y = AbstractSyntaxTree()
+            y.add(promoteToMulti(type), type)
             return y
         }
 
-        infix fun and(right: IsSequenceOneOrMany): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().AND) x.type = Types().AND
-            if (right.type == null || right.type == Types().AND) x.type = Types().AND
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
-            y.add(x, Types().AND)
-            return y
+        fun promoteToMulti(type: Int): Multi {
+            val x = parent.clone().Multi(value)
+            if (list.size != 0) x.list.addAll(list) else x.list.add(Types().also { it.add(this, type) })
+            return x
         }
 
-        infix fun and(right: IsSequenceOnce): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().AND) x.type = Types().AND
-            if (right.type == null || right.type == Types().AND) x.type = Types().AND
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
-            y.add(x, Types().AND)
-            return y
-        }
+        infix fun and(right: AbstractSyntaxTree): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().AND) and right
 
-        infix fun or(right: GroupCombination): GroupCombination = right or  this
+        infix fun and(right: Multi): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().AND) and right
 
-        infix fun or(right: Group): GroupCombination = right or this
+        infix fun and(right: IsSequenceZeroOrMany): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().AND) and right
 
-        infix fun or(right: Combination): Combination = right or this
+        infix fun and(right: IsSequenceOneOrMany): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().AND) and right
 
-        infix fun or(right: Multi): Multi = right or this
+        infix fun and(right: IsSequenceOnce): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().AND) and right
 
-        infix fun or(right: IsSequenceZeroOrMany): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().OR) x.type = Types().OR
-            if (right.type == null || right.type == Types().OR) x.type = Types().OR
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
-            y.add(x, Types().OR)
-            return y
-        }
+        infix fun or(right: AbstractSyntaxTree): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().OR) or right
 
-        infix fun or(right: IsSequenceOneOrMany): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().OR) x.type = Types().OR
-            if (right.type == null || right.type == Types().OR) x.type = Types().OR
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
-            y.add(x, Types().OR)
-            return y
-        }
+        infix fun or(right: Multi): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().OR) or right
 
-        infix fun or(right: IsSequenceOnce): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().OR) x.type = Types().OR
-            if (right.type == null || right.type == Types().OR) x.type = Types().OR
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
-            y.add(x, Types().OR)
-            return y
-        }
+        infix fun or(right: IsSequenceZeroOrMany): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().OR) or right
+
+        infix fun or(right: IsSequenceOneOrMany): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().OR) or right
+
+        infix fun or(right: IsSequenceOnce): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().OR) or right
     }
 
     /**
@@ -752,87 +682,37 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return false
         }
 
-        infix fun and(right: GroupCombination): GroupCombination = right and this
-
-        infix fun and(right: Group): GroupCombination = right and this
-
-        infix fun and(right: Combination): Combination = right and this
-
-        infix fun and(right: Multi): Multi = right and this
-
-        infix fun and(right: IsSequenceZeroOrMany): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().AND) x.type = Types().AND
-            if (right.type == null || right.type == Types().AND) x.type = Types().AND
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
-            y.add(x, Types().AND)
+        fun promoteToAbstractSyntaxTree(type: Int): AbstractSyntaxTree {
+            val y = AbstractSyntaxTree()
+            y.add(promoteToMulti(type), type)
             return y
         }
 
-        infix fun and(right: IsSequenceOneOrMany): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().AND) x.type = Types().AND
-            if (right.type == null || right.type == Types().AND) x.type = Types().AND
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
-            y.add(x, Types().AND)
-            return y
+        fun promoteToMulti(type: Int): Multi {
+            val x = parent.clone().Multi(value)
+            if (list.size != 0) x.list.addAll(list) else x.list.add(Types().also { it.add(this, type) })
+            return x
         }
 
-        infix fun and(right: IsSequenceOnce): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().AND) x.type = Types().AND
-            if (right.type == null || right.type == Types().AND) x.type = Types().AND
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
-            y.add(x, Types().AND)
-            return y
-        }
+        infix fun and(right: AbstractSyntaxTree): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().AND) and right
 
-        infix fun or(right: GroupCombination): GroupCombination = right or  this
+        infix fun and(right: Multi): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().AND) and right
 
-        infix fun or(right: Group): GroupCombination = right or this
+        infix fun and(right: IsSequenceZeroOrMany): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().AND) and right
 
-        infix fun or(right: Combination): Combination = right or this
+        infix fun and(right: IsSequenceOneOrMany): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().AND) and right
 
-        infix fun or(right: Multi): Multi = right or this
+        infix fun and(right: IsSequenceOnce): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().AND) and right
 
-        infix fun or(right: IsSequenceZeroOrMany): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().OR) x.type = Types().OR
-            if (right.type == null || right.type == Types().OR) x.type = Types().OR
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
-            y.add(x, Types().OR)
-            return y
-        }
+        infix fun or(right: AbstractSyntaxTree): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().OR) or right
 
-        infix fun or(right: IsSequenceOneOrMany): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().OR) x.type = Types().OR
-            if (right.type == null || right.type == Types().OR) x.type = Types().OR
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
-            y.add(x, Types().OR)
-            return y
-        }
+        infix fun or(right: Multi): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().OR) or right
 
-        infix fun or(right: IsSequenceOnce): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().OR) x.type = Types().OR
-            if (right.type == null || right.type == Types().OR) x.type = Types().OR
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
-            y.add(x, Types().OR)
-            return y
-        }
+        infix fun or(right: IsSequenceZeroOrMany): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().OR) or right
+
+        infix fun or(right: IsSequenceOneOrMany): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().OR) or right
+
+        infix fun or(right: IsSequenceOnce): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().OR) or right
     }
 
     /**
@@ -1013,138 +893,54 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return false
         }
 
-        infix fun and(right: GroupCombination): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
-            return x and right
-        }
-
-        infix fun and(right: Group): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
-            return x and right
-        }
-
-        infix fun and(right: Combination): Combination {
-            // promote to Multi
-            val x = parent.clone().Multi(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
-            return x and right
-        }
-
-        infix fun and(right: Multi): Multi {
-            // promote to Multi
-            val x = parent.clone().Multi(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
-            return x and right
-        }
-
-        infix fun and(right: IsSequenceZeroOrMany): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().AND) x.type = Types().AND
-            if (right.type == null || right.type == Types().AND) x.type = Types().AND
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
-            y.add(x, Types().AND)
+        fun promoteToAbstractSyntaxTree(type: Int): AbstractSyntaxTree {
+            val y = AbstractSyntaxTree()
+            y.add(promoteToMulti(type), type)
             return y
         }
 
-        infix fun and(right: IsSequenceOneOrMany): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().AND) x.type = Types().AND
-            if (right.type == null || right.type == Types().AND) x.type = Types().AND
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
-            y.add(x, Types().AND)
-            return y
+        fun promoteToMulti(type: Int): Multi {
+            val x = parent.clone().Multi(value)
+            if (list.size != 0) x.list.addAll(list) else x.list.add(Types().also { it.add(this, type) })
+            return x
         }
 
-        infix fun and(right: IsSequenceOnce): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().AND) x.type = Types().AND
-            if (right.type == null || right.type == Types().AND) x.type = Types().AND
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.AND) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
-            y.add(x, Types().AND)
-            return y
-        }
+        infix fun and(right: AbstractSyntaxTree): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().AND) and right
 
-        infix fun or(right: GroupCombination): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
-            return x or right
-        }
+        infix fun and(right: Multi): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().AND) and right
 
-        infix fun or(right: Group): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
-            return x or right
-        }
+        infix fun and(right: IsSequenceZeroOrMany): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().AND) and right
 
-        infix fun or(right: Combination): Combination {
-            // promote to Multi
-            val x = parent.clone().Multi(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
-            return x or right
-        }
+        infix fun and(right: IsSequenceOneOrMany): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().AND) and right
 
-        infix fun or(right: Multi): Multi {
-            // promote to Multi
-            val x = parent.clone().Multi(this.value)
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
-            return x or right
-        }
+        infix fun and(right: IsSequenceOnce): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().AND) and right
 
-        infix fun or(right: IsSequenceZeroOrMany): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().OR) x.type = Types().OR
-            if (right.type == null || right.type == Types().OR) x.type = Types().OR
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
-            y.add(x, Types().OR)
-            return y
-        }
+        infix fun or(right: AbstractSyntaxTree): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().OR) or right
 
-        infix fun or(right: IsSequenceOneOrMany): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().OR) x.type = Types().OR
-            if (right.type == null || right.type == Types().OR) x.type = Types().OR
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
-            y.add(x, Types().OR)
-            return y
-        }
+        infix fun or(right: Multi): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().OR) or right
 
-        infix fun or(right: IsSequenceOnce): Combination {
-            val y = Combination()
-            val x = parent.clone().Multi(this.value)
-            if (this.type == null || this.type == Types().OR) x.type = Types().OR
-            if (right.type == null || right.type == Types().OR) x.type = Types().OR
-            if (this.list.size != 0) x.list.addAll(this.list) else x.list.add(Types().also { it.add(this, it.OR) })
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
-            y.add(x, Types().OR)
-            return y
-        }
+        infix fun or(right: IsSequenceZeroOrMany): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().OR) or right
+
+        infix fun or(right: IsSequenceOneOrMany): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().OR) or right
+
+        infix fun or(right: IsSequenceOnce): AbstractSyntaxTree = this.promoteToAbstractSyntaxTree(Types().OR) or right
     }
 
-    inner class Combination() {
+    inner class AbstractSyntaxTree() {
         inner class LIST {
             var type: Int? = null
             var list: Multi? = null
         }
 
+        val AST = Tree<LIST>()
+
         val parent = this@Parser
         var list: MutableList<LIST> = mutableListOf()
         fun add(List: Multi, type: Int) {
+            val x = LIST()
+            x.type = type
+            x.list = List
+            AST.current!!.add(x)
             // append list in order
             if (list.size != 0) {
                 val t = list.lastIndex()
@@ -1179,22 +975,8 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             it.list!!.printList()
         }
 
-        infix fun and(right: GroupCombination): GroupCombination {
-            // promote to Group
-            val g = Group(this)
-            g.depth -= 2
-            return g and right
-        }
-
-        infix fun and(right: Group): GroupCombination {
-            // promote to Group
-            val g = Group(this)
-            right.depth--
-            g.depth -= 2
-            return g and right
-        }
-
-        infix fun and(right: Combination): Combination {
+        infix fun and(right: AbstractSyntaxTree): AbstractSyntaxTree {
+            AST.current!!.add(right.AST)
             // append list in order
             if (list.size != 0) {
                 val t = this.list.lastIndex()
@@ -1221,7 +1003,11 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return this
         }
 
-        infix fun and(right: Multi): Combination {
+        infix fun and(right: Multi): AbstractSyntaxTree {
+            val x = LIST()
+            x.type = Types().AND
+            x.list = right
+            AST.current!!.add(x)
             // append list in order
             if (this.list.size != 0) {
                 val t = this.list.lastIndex()
@@ -1242,7 +1028,11 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return this
         }
 
-        infix fun and(right: IsSequenceZeroOrMany): Combination {
+        infix fun and(right: IsSequenceZeroOrMany): AbstractSyntaxTree {
+            val x = LIST()
+            x.type = Types().AND
+            x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
+            AST.current!!.add(x)
             // append list in order
             if (this.list.size != 0) {
                 val t = this.list.lastIndex()
@@ -1263,7 +1053,11 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return this
         }
 
-        infix fun and(right: IsSequenceOneOrMany): Combination {
+        infix fun and(right: IsSequenceOneOrMany): AbstractSyntaxTree {
+            val x = LIST()
+            x.type = Types().AND
+            x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
+            AST.current!!.add(x)
             // append list in order
             if (this.list.size != 0) {
                 val t = this.list.lastIndex()
@@ -1284,7 +1078,11 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return this
         }
 
-        infix fun and(right: IsSequenceOnce): Combination {
+        infix fun and(right: IsSequenceOnce): AbstractSyntaxTree {
+            val x = LIST()
+            x.type = Types().AND
+            x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
+            AST.current!!.add(x)
             // append list in order
             if (this.list.size != 0) {
                 val t = this.list.lastIndex()
@@ -1305,22 +1103,8 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return this
         }
 
-        infix fun or(right: GroupCombination): GroupCombination {
-            // promote to Group
-            val g = Group(this)
-            g.depth -= 2
-            return g or right
-        }
-
-        infix fun or(right: Group): GroupCombination {
-            // promote to Group
-            val g = Group(this)
-            right.depth--
-            g.depth -= 2
-            return g or right
-        }
-
-        infix fun or(right: Combination): Combination {
+        infix fun or(right: AbstractSyntaxTree): AbstractSyntaxTree {
+            AST.current!!.add(right.AST)
             // append list in order
             if (list.size != 0) {
                 val t = this.list.lastIndex()
@@ -1347,7 +1131,11 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return this
         }
 
-        infix fun or(right: Multi): Combination {
+        infix fun or(right: Multi): AbstractSyntaxTree {
+            val x = LIST()
+            x.type = Types().AND
+            x.list = right
+            AST.current!!.add(x)
             // append list in order
             if (this.list.size != 0) {
                 val t = this.list.lastIndex()
@@ -1368,7 +1156,11 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return this
         }
 
-        infix fun or(right: IsSequenceZeroOrMany): Combination {
+        infix fun or(right: IsSequenceZeroOrMany): AbstractSyntaxTree {
+            val x = LIST()
+            x.type = Types().AND
+            x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
+            AST.current!!.add(x)
             // append list in order
             if (this.list.size != 0) {
                 val t = this.list.lastIndex()
@@ -1389,7 +1181,11 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return this
         }
 
-        infix fun or(right: IsSequenceOneOrMany): Combination {
+        infix fun or(right: IsSequenceOneOrMany): AbstractSyntaxTree {
+            val x = LIST()
+            x.type = Types().AND
+            x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
+            AST.current!!.add(x)
             // append list in order
             if (this.list.size != 0) {
                 val t = this.list.lastIndex()
@@ -1410,7 +1206,11 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             return this
         }
 
-        infix fun or(right: IsSequenceOnce): Combination {
+        infix fun or(right: IsSequenceOnce): AbstractSyntaxTree {
+            val x = LIST()
+            x.type = Types().AND
+            x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
+            AST.current!!.add(x)
             // append list in order
             if (this.list.size != 0) {
                 val t = this.list.lastIndex()
@@ -1432,540 +1232,38 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
         }
     }
 
-    fun Group(parsers: GroupCombination): GroupCombination {
-        parsers.list.forEach {
-            it.list!!.depth += 1
-        }
-        return parsers
-    }
-
-    fun Group(parsers: Group): GroupCombination {
-        // promote to GroupCombination
-        val x = GroupCombination()
-        parsers.depth += 1
-        x.add(parsers, parsers.list[0].type!!)
+    fun Group(parsers: AbstractSyntaxTree): AbstractSyntaxTree {
+        val x = AbstractSyntaxTree()
+        x.AST.groupBegin().add(parsers.AST)
+        x.AST.groupEnd()
         return x
     }
 
-    fun Group(parsers: Combination): Group {
-        val x = Group()
-        x.add(1, parsers)
+    fun Group(parsers: Multi): AbstractSyntaxTree {
+        val x = AbstractSyntaxTree()
+        x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(Types().AND).AST)
+        x.AST.groupEnd()
         return x
     }
 
-    fun Group(parsers: Multi): Group {
-        val z = Group()
-        z.add(1, parsers, Types().AND)
-        return z
+    fun Group(parsers: IsSequenceZeroOrMany): AbstractSyntaxTree {
+        val x = AbstractSyntaxTree()
+        x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(Types().AND).AST)
+        x.AST.groupEnd()
+        return x
     }
 
-    fun Group(parsers: IsSequenceZeroOrMany): Group {
-        val z = Group()
-        z.add(1, Multi(parsers.value).also { it.list.add(Types().also { it.add(parsers, it.AND) }) }, Types().AND)
-        return z
+    fun Group(parsers: IsSequenceOneOrMany): AbstractSyntaxTree {
+        val x = AbstractSyntaxTree()
+        x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(Types().AND).AST)
+        x.AST.groupEnd()
+        return x
     }
 
-    fun Group(parsers: IsSequenceOneOrMany): Group {
-        val z = Group()
-        z.add(1, Multi(parsers.value).also { it.list.add(Types().also { it.add(parsers, it.AND) }) }, Types().AND)
-        return z
-    }
-
-    fun Group(parsers: IsSequenceOnce): Group {
-        val z = Group()
-        z.add(1, Multi(parsers.value).also { it.list.add(Types().also { it.add(parsers, it.AND) }) }, Types().AND)
-        return z
-    }
-
-    inner class Group() {
-
-        inner class LIST {
-            var type: Int? = null
-            var list: Combination? = null
-        }
-
-        val parent = this@Parser
-        var list: MutableList<LIST> = mutableListOf()
-        var depth: Int = 0
-
-        fun add(depth: Int, parsers: Combination) {
-            this.depth = depth
-            val x = LIST()
-            x.type = parsers.list[0].type!!
-            x.list = parsers
-            list.add(x)
-        }
-
-        fun add(depth: Int, List: Multi, type: Int) {
-            this.depth = depth
-            // append list in order
-            if (list.size != 0) {
-                val t = list.lastIndex()
-                if (t.type == Types().AND) {
-                    if (type == Types().AND) {
-                        t.list = t.list!! and List
-                    } else {
-                        val x = LIST()
-                        x.type = type
-                        // promote to combination
-                        val y = Combination()
-                        y.add(List, Types().AND)
-                        x.list = y
-                        list.add(x)
-                    }
-                } else {
-                    if (type == Types().AND) {
-                        val x = LIST()
-                        x.type = type
-                        // promote to combination
-                        val y = Combination()
-                        y.add(List, Types().AND)
-                        x.list = y
-                        list.add(x)
-                    } else {
-                        t.list = t.list!! and List
-                    }
-                }
-            } else {
-                val x = LIST()
-                x.type = type
-                // promote to combination
-                val y = Combination()
-                y.add(List, Types().AND)
-                x.list = y
-                list.add(x)
-            }
-        }
-
-        fun printList() = list.forEach {
-            println("group ${list.indexOf(it)} (depth $depth): ${Types().typeToString(it.type)}")
-            it.list!!.printList()
-        }
-
-        infix fun and(right: GroupCombination): GroupCombination {
-            // promote to GroupCombination
-            val c = GroupCombination()
-            this.depth--
-            c.add(this, Types().AND)
-            return c and right
-        }
-
-        infix fun and(right: Group): GroupCombination {
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing group
-            this.depth--
-            right.depth--
-            c.add(this, Types().AND)
-            c.add(right, Types().AND)
-            return c
-        }
-
-        infix fun and(right: Combination): GroupCombination {
-            // promote to Group
-            val g = Group(right)
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing group
-            c.add(this, Types().AND)
-            c.add(g, Types().AND)
-            return c
-        }
-
-        infix fun and(right: Multi): GroupCombination {
-            // promote to combination
-            val y = Combination()
-            y.add(right, Types().AND)
-            // promote to Group
-            val g = Group(y)
-            depth--
-            g.depth -= 2
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing group
-            c.add(this, Types().AND)
-            c.add(g, Types().AND)
-            return c
-        }
-
-        infix fun and(right: IsSequenceZeroOrMany): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(right.value)
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
-            // promote to combination
-            val y = Combination()
-            y.add(x, Types().AND)
-            // promote to Group
-            val g = Group(y)
-            depth--
-            g.depth -= 2
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing group
-            c.add(this, Types().AND)
-            c.add(g, Types().AND)
-            return c
-        }
-
-        infix fun and(right: IsSequenceOneOrMany): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(right.value)
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
-            // promote to combination
-            val y = Combination()
-            y.add(x, Types().AND)
-            // promote to Group
-            val g = Group(y)
-            depth--
-            g.depth -= 2
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing group
-            c.add(this, Types().AND)
-            c.add(g, Types().AND)
-            return c
-        }
-
-        infix fun and(right: IsSequenceOnce): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(right.value)
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
-            // promote to combination
-            val y = Combination()
-            y.add(x, Types().AND)
-            // promote to Group
-            val g = Group(y)
-            depth--
-            g.depth -= 2
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing group
-            c.add(this, Types().AND)
-            c.add(g, Types().AND)
-            return c
-        }
-
-        infix fun or(right: GroupCombination): GroupCombination {
-            // promote to GroupCombination
-            val c = GroupCombination()
-            c.add(this, Types().OR)
-            return c or right
-        }
-
-        infix fun or(right: Group): GroupCombination {
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing group
-            c.add(this, Types().OR)
-            c.add(right, Types().OR)
-            return c
-        }
-
-        infix fun or(right: Combination): GroupCombination {
-            // promote to Group
-            val g = Group(right)
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing group
-            c.add(this, Types().OR)
-            c.add(g, Types().OR)
-            return c
-        }
-
-        infix fun or(right: Multi): GroupCombination {
-            // promote to combination
-            val y = Combination()
-            y.add(right, Types().OR)
-            // promote to Group
-            val g = Group(y)
-            depth--
-            g.depth -= 2
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing group
-            c.add(this, Types().OR)
-            c.add(g, Types().OR)
-            return c
-        }
-
-        infix fun or(right: IsSequenceZeroOrMany): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(right.value)
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
-            // promote to combination
-            val y = Combination()
-            y.add(x, Types().OR)
-            // promote to Group
-            val g = Group(y)
-            depth--
-            g.depth -= 2
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing group
-            c.add(this, Types().OR)
-            c.add(g, Types().OR)
-            return c
-        }
-
-        infix fun or(right: IsSequenceOneOrMany): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(right.value)
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
-            // promote to combination
-            val y = Combination()
-            y.add(x, Types().OR)
-            // promote to Group
-            val g = Group(y)
-            depth--
-            g.depth -= 2
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing group
-            c.add(this, Types().OR)
-            c.add(g, Types().OR)
-            return c
-        }
-
-        infix fun or(right: IsSequenceOnce): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(right.value)
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
-            // promote to combination
-            val y = Combination()
-            y.add(x, Types().OR)
-            // promote to Group
-            val g = Group(y)
-            depth--
-            g.depth -= 2
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing group
-            c.add(this, Types().OR)
-            c.add(g, Types().OR)
-            return c
-        }
-    }
-
-    inner class GroupCombination() {
-        inner class LIST {
-            var type: Int? = null
-            var list: Group? = null
-        }
-
-        val parent = this@Parser
-        var list: MutableList<LIST> = mutableListOf()
-        fun add(List: Group, type: Int) {
-            val x = LIST()
-            x.type = type
-            x.list = List
-            List.depth += 1
-            list.add(x)
-        }
-
-        fun add(List: GroupCombination, type: Int) = List.list.forEach {
-            it.type = type
-            list.add(it)
-        }
-
-        fun printList() {
-            list.forEach {
-                println("groupCombination ${list.indexOf(it)}: ${Types().typeToString(it.type)}")
-                it.list!!.printList()
-            }
-        }
-
-        infix fun and(right: GroupCombination): GroupCombination {
-            val g = GroupCombination()
-            // append existing groupCombination
-            g.add(this, Types().AND)
-            g.add(right, Types().AND)
-            return g
-        }
-
-        infix fun and(right: Group): GroupCombination {
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing groupCombination
-            c.add(this, Types().AND)
-            c.add(right, Types().AND)
-            return c
-        }
-
-        infix fun and(right: Combination): GroupCombination {
-            // promote to Group
-            val g = Group(right)
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing groupCombination
-            c.add(this, Types().AND)
-            c.add(g, Types().AND)
-            return c
-        }
-
-        infix fun and(right: Multi): GroupCombination {
-            // promote to combination
-            val y = Combination()
-            y.add(right, Types().AND)
-            // promote to Group
-            val g = Group(y)
-            g.depth -= 2
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing groupCombination
-            c.add(this, Types().AND)
-            c.add(g, Types().AND)
-            return c
-        }
-
-        infix fun and(right: IsSequenceZeroOrMany): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(right.value)
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
-            // promote to combination
-            val y = Combination()
-            y.add(x, Types().AND)
-            // promote to Group
-            val g = Group(y)
-            g.depth -= 2
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing groupCombination
-            c.add(this, Types().AND)
-            c.add(g, Types().AND)
-            return c
-        }
-
-        infix fun and(right: IsSequenceOneOrMany): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(right.value)
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.AND) })
-            // promote to combination
-            val y = Combination()
-            y.add(x, Types().AND)
-            // promote to Group
-            val g = Group(y)
-            g.depth -= 2
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing groupCombination
-            c.add(this, Types().AND)
-            c.add(g, Types().AND)
-            return c
-        }
-
-        infix fun and(right: IsSequenceOnce): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(right.value)
-            x.list.add(Types().also { it.add(right, it.AND) })
-            // promote to combination
-            val y = Combination()
-            y.add(x, Types().AND)
-            // promote to Group
-            val g = Group(y)
-            g.depth -= 2
-            val c = GroupCombination()
-            // append existing groupCombination
-            c.add(this, Types().AND)
-            // promote to GroupCombination
-            c.add(g, Types().AND)
-            return c
-        }
-
-        infix fun or(right: GroupCombination): GroupCombination {
-            val c = GroupCombination()
-            // append existing groupCombination
-            c.add(this, Types().OR)
-            c.add(right, Types().OR)
-            return c
-        }
-
-        infix fun or(right: Group): GroupCombination {
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing groupCombination
-            c.add(this, Types().OR)
-            c.add(right, Types().OR)
-            return c
-        }
-
-        infix fun or(right: Combination): GroupCombination {
-            // promote to Group
-            val g = Group(right)
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing groupCombination
-            c.add(this, Types().OR)
-            c.add(g, Types().OR)
-            return c
-        }
-
-        infix fun or(right: Multi): GroupCombination {
-            // promote to combination
-            val y = Combination()
-            y.add(right, Types().OR)
-            // promote to Group
-            val g = Group(y)
-            g.depth -= 2
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing groupCombination
-            c.add(this, Types().OR)
-            c.add(g, Types().OR)
-            return c
-        }
-
-        infix fun or(right: IsSequenceZeroOrMany): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(right.value)
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
-            // promote to combination
-            val y = Combination()
-            y.add(x, Types().OR)
-            // promote to Group
-            val g = Group(y)
-            g.depth -= 2
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing groupCombination
-            c.add(this, Types().OR)
-            c.add(g, Types().OR)
-            return c
-        }
-
-        infix fun or(right: IsSequenceOneOrMany): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(right.value)
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
-            // promote to combination
-            val y = Combination()
-            y.add(x, Types().OR)
-            // promote to Group
-            val g = Group(y)
-            g.depth -= 2
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing groupCombination
-            c.add(this, Types().OR)
-            c.add(g, Types().OR)
-            return c
-        }
-
-        infix fun or(right: IsSequenceOnce): GroupCombination {
-            // promote to Multi
-            val x = parent.clone().Multi(right.value)
-            if (right.list.size != 0) x.list.addAll(right.list) else x.list.add(Types().also { it.add(right, it.OR) })
-            // promote to combination
-            val y = Combination()
-            y.add(x, Types().OR)
-            // promote to Group
-            val g = Group(y)
-            g.depth -= 2
-            // promote to GroupCombination
-            val c = GroupCombination()
-            // append existing groupCombination
-            c.add(this, Types().OR)
-            c.add(g, Types().OR)
-            return c
-        }
+    fun Group(parsers: IsSequenceOnce): AbstractSyntaxTree {
+        val x = AbstractSyntaxTree()
+        x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(Types().AND).AST)
+        x.AST.groupEnd()
+        return x
     }
 }
