@@ -2,11 +2,9 @@
 
 package sample.kotlin
 
+import preprocessor.core.PG
 import preprocessor.core.Parser
-import preprocessor.utils.`class`.extensions.lastIndex
 import preprocessor.utils.`class`.extensions.toStack
-//import preprocessor.utils.core.algorithms.BinaryTree
-import preprocessor.utils.core.algorithms.Tree
 
 class Kotlin(contents: String) {
     val parseStream = Parser("AABBCCDEE") { it.toStack() }
@@ -15,15 +13,15 @@ class Kotlin(contents: String) {
     inner class Lexer {
         val A1 = X.IsSequenceOnce("1")
         val B1 = X.IsSequenceOnce("2")
-//        val lists = X.Group(A1 and B1) and X.Group(X.Group(A1 and A1) or B1) // depth 2, 2, 1
-//        val lists = X.Group(X.Group(X.Group(X.Group(A1 and X.Group(B1 and B1)) or A1) or B1) and B1) and A1 // depth 5 4 3 2 1
-//        val lists = A1 and X.Group(B1) // depth 0, 1
-//        val lists = X.Group(A1 and X.Group(B1)) // depth 1, 2
-//        val lists = A1 and X.Group(A1 and X.Group(B1)) // depth 0, 1, 2
-//        val lists = A1 and X.Group(B1) // depth 0, 1
-//        val lists = X.Group(A1 and B1) // depth 1
-//        val lists = X.Group(A1 and B1) and X.Group(A1 and B1) // depth 1, 1
-//        val lists = X.Group(A1 and A1) or B1
+//        val lists = PG(A1 and B1) and PG(PG(A1 and A1) or B1) // depth 2, 2, 1
+//        val lists = PG(PG(PG(PG(A1 and PG(B1 and B1)) or A1) or B1) and B1) and A1 // depth 5 4 3 2 1
+//        val lists = A1 and PG(B1) // depth 0, 1
+//        val lists = PG(A1 and PG(B1)) // depth 1, 2
+//        val lists = A1 and PG(A1 and PG(B1)) // depth 0, 1, 2
+//        val lists = A1 and PG(B1) // depth 0, 1
+//        val lists = PG(A1 and B1) // depth 1
+//        val lists = PG(A1 and B1) and PG(A1 and B1) // depth 1, 1
+//        val lists = PG(A1 and A1) or B1
         /*
 groupCombination 0: And
 group 0 (depth 1): And
@@ -33,7 +31,7 @@ groupCombination 1: Or
 group 0 (depth 0): Or
 it.once.value = 2 as IsSequenceOnce
          */
-//        val lists = X.Group(X.Group(A1 and A1) or B1)
+//        val lists = PG(PG(A1 and A1) or B1)
         /*
 groupCombination 0: And
 group 0 (depth 2): And
@@ -45,9 +43,9 @@ it.once.value = 2 as IsSequenceOnce
          */
 
 //        val lists =
-//            X.Group2(                        // group container
-//                X.Group2(                    // group container
-//                    X.Group2(                // group container
+//            PG2(                        // group container
+//                PG2(                    // group container
+//                    PG2(                // group container
 //                        A1 and      // A1 is Parser.IsSequenceOnce
 //                                            // and between two Parser.IsSequenceOnce returns Parser.Combination
 //                                            // normally this would be optimized to instead return Parser.IsSequenceOnce
@@ -56,8 +54,8 @@ it.once.value = 2 as IsSequenceOnce
 //                    )                       // returns Parser.Group
 //                )                           // returns Parser.GroupCombination, this holds multiple Parser.Group's
 //            ) or                            // returns Parser.GroupCombination, this holds multiple Parser.Group's
-//                    X.Group2(                // group container
-//                        X.Group2(    // group container
+//                    PG2(                // group container
+//                        PG2(    // group container
 //                            A1 and  // A1 is Parser.IsSequenceOnce
 //                                            // and between two Parser.IsSequenceOnce returns Parser.Combination
 //                                            // normally this would be optimized to instead return Parser.IsSequenceOnce
@@ -84,7 +82,7 @@ groupCombination 2: Or
 group 0 (depth 1): Or
 it.once.value = 2 as IsSequenceOnce Or
          */
-//        val lists = X.Group(X.Group(X.Group(A1 and B1)) or X.Group(A1 and A1) or B1)
+//        val lists = PG(PG(PG(A1 and B1)) or PG(A1 and A1) or B1)
         /*
 (((1 and 2)) or (1 and 1) or 2)
 (((1 && 2)) || (1 && 1) || 2)
@@ -102,7 +100,7 @@ groupCombination 2: Or
 group 0 (depth 1): Or
 it.once.value = 2 as IsSequenceOnce Or
          */
-//        val lists = A1 or X.Group(A1 or B1)
+//        val lists = A1 or PG(A1 or B1)
         /*
          root
         /  |
@@ -150,7 +148,9 @@ it.once.value = 2 as IsSequenceOnce Or
         val ABCD = AB and C and CD
 
         init {
-            val lists = X.Group(X.Group(X.Group(A1 and X.Group(B1)))) or X.Group(X.Group(A1 and A1) or B1)
+            val lists = PG(PG(PG(A1 and PG(B1)))) or PG(PG(A1 and A1) or B1)
+//            val lists = PG(B1 or A1 or B1) or PG(A1 or PG(B1 or A1))
+//            val lists = A1 and PG(B1 or A1 or B1) or PG(A1 or PG(B1 or A1))
             println(lists.AST.prettyPrint { it?.list?.value })
 //            println(parseStream.toStringAsArray())
 //            println(ABCD.peek())

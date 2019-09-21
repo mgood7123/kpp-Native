@@ -209,7 +209,7 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
     }
 
     inner class Multi(str: String) {
-        private val parent = this@Parser
+        val parent = this@Parser
         var list: MutableList<Types> = mutableListOf()
         val value: String = str
         var type: Int? = null
@@ -1104,7 +1104,7 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
         }
 
         infix fun or(right: AbstractSyntaxTree): AbstractSyntaxTree {
-            AST.current!!.add(right.AST)
+            AST.current!!.parent!!.add(right.AST)
             // append list in order
             if (list.size != 0) {
                 val t = this.list.lastIndex()
@@ -1135,7 +1135,7 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             val x = LIST()
             x.type = Types().AND
             x.list = right
-            AST.current!!.add(x)
+            AST.current!!.parent!!.add(x)
             // append list in order
             if (this.list.size != 0) {
                 val t = this.list.lastIndex()
@@ -1160,7 +1160,7 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             val x = LIST()
             x.type = Types().AND
             x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
-            AST.current!!.add(x)
+            AST.current!!.parent!!.add(x)
             // append list in order
             if (this.list.size != 0) {
                 val t = this.list.lastIndex()
@@ -1185,7 +1185,7 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             val x = LIST()
             x.type = Types().AND
             x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
-            AST.current!!.add(x)
+            AST.current!!.parent!!.add(x)
             // append list in order
             if (this.list.size != 0) {
                 val t = this.list.lastIndex()
@@ -1210,7 +1210,7 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             val x = LIST()
             x.type = Types().AND
             x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
-            AST.current!!.add(x)
+            AST.current!!.parent!!.add(x)
             // append list in order
             if (this.list.size != 0) {
                 val t = this.list.lastIndex()
@@ -1266,4 +1266,39 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
         x.AST.groupEnd()
         return x
     }
+}
+
+fun PG(parsers: Parser.AbstractSyntaxTree): Parser.AbstractSyntaxTree {
+    val x = parsers.parent.AbstractSyntaxTree()
+    x.AST.groupBegin().add(parsers.AST)
+    x.AST.groupEnd()
+    return x
+}
+
+fun PG(parsers: Parser.Multi): Parser.AbstractSyntaxTree {
+    val x = parsers.parent.AbstractSyntaxTree()
+    x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(parsers.parent.Types().AND).AST)
+    x.AST.groupEnd()
+    return x
+}
+
+fun PG(parsers: Parser.IsSequenceZeroOrMany): Parser.AbstractSyntaxTree {
+    val x = parsers.parent.AbstractSyntaxTree()
+    x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(parsers.parent.Types().AND).AST)
+    x.AST.groupEnd()
+    return x
+}
+
+fun PG(parsers: Parser.IsSequenceOneOrMany): Parser.AbstractSyntaxTree {
+    val x = parsers.parent.AbstractSyntaxTree()
+    x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(parsers.parent.Types().AND).AST)
+    x.AST.groupEnd()
+    return x
+}
+
+fun PG(parsers: Parser.IsSequenceOnce): Parser.AbstractSyntaxTree {
+    val x = parsers.parent.AbstractSyntaxTree()
+    x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(parsers.parent.Types().AND).AST)
+    x.AST.groupEnd()
+    return x
 }
