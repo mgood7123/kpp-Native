@@ -13,6 +13,9 @@ class Kotlin(contents: String) {
     inner class Lexer {
         init {
             // implementation of a parser combinator
+
+            // minimal parser: https://github.com/Erlkoenig90/parser/blob/master/parser-en.rb#L274
+
             val A = parseStream.IsSequenceZeroOrMany("A")
             val B = parseStream.IsSequenceOneOrMany("B")
             val AB = A and B
