@@ -351,88 +351,272 @@ fun String.toStringBuilder(capacity: Int): StringBuilder {
 
 fun String?.toStringBuilder(capacity: Int): StringBuilder? = this?.toStringBuilder(capacity)
 
-fun String.padExtendEnd(to: Int, str: String) = if(to - this.length isGreaterThan 0) {
-    val build = this.toStringBuilder(max(this.length, to));
-    val m = str.lastIndex
-    var i = 0
-    while(build.length isLessThan to) {
-        build.append(str[i])
-        if (i isEqualTo m) i = 0 else i++
+fun String.padExtendEnd(to: Int, str: String, rotateString: Boolean, trim: Boolean) = when(trim) {
+    true -> when {
+        to == 0 || to - this.length isEqualTo 0 -> this
+        to - this.length isGreaterThan 0 -> {
+            val build = this.toStringBuilder(max(this.length, to));
+            val m = str.lastIndex
+            var i = 0
+            while (build.length isLessThan to) {
+                build.append(if (rotateString) str[i] else str)
+                if (i isEqualTo m) i = 0 else i++
+            }
+            build.toString()
+        }
+        else -> this.padShrinkEnd(to, str, rotateString, trim)
     }
-    build.toString()
-} else if(to - this.length isEqualTo 0) this else {
-    this.padShrinkEnd(to, str)
+    false -> {
+        val build = this.toStringBuilder(max(this.length, to));
+        val m = str.lastIndex
+        val n = this.length
+        var i = 0
+        while (build.length isLessThan n + (to * str.length)) {
+            build.append(if (rotateString) str[i] else str)
+            if (i isEqualTo m) i = 0 else i++
+        }
+        build.toString()
+    }
 }
+
+fun String.padExtendEnd(to: Int, str: String, rotateString: Boolean): String = this.padExtendEnd(to, str, rotateString, true)
+
+fun String.padExtendEnd(to: Int, str: String): String = this.padExtendEnd(to, str, true)
+
+fun String.padExtendEnd(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String = this.padExtendEnd(to, char.toString(), rotateString, trim)
+
+fun String.padExtendEnd(to: Int, char: Char, rotateString: Boolean): String = this.padExtendEnd(to, char.toString(), rotateString)
 
 fun String.padExtendEnd(to: Int, char: Char): String = this.padExtendEnd(to, char.toString())
 
+fun String.padExtendEnd(to: Int, rotateString: Boolean, trim: Boolean): String = this.padExtendEnd(to, this[0], rotateString, trim)
+
+fun String.padExtendEnd(to: Int, rotateString: Boolean): String = this.padExtendEnd(to, this[0], rotateString)
+
 fun String.padExtendEnd(to: Int): String = this.padExtendEnd(to, this[0])
 
-fun String?.padExtendEnd(to: Int): String? = this?.padExtendEnd(to)
+fun String?.padExtendEnd(to: Int, str: String, rotateString: Boolean): String? = this?.padExtendEnd(to, str, rotateString)
 
-fun String?.padExtendEnd(to: Int, char: Char): String? = this?.padExtendEnd(to, char)
+fun String?.padExtendEnd(to: Int, str: String): String? = this?.padExtendEnd(to, str)
 
-fun String.padExtendStart(to: Int, str: String): String = if(to - this.length isGreaterThan 0) {
-    val build = this.reversed().toStringBuilder()
-    val m = str.lastIndex
-    var i = 0
-    while(build.length isLessThan to) {
-        build.append(str[i])
-        if (i isEqualTo m) i = 0 else i++
+fun String?.padExtendEnd(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String? = this?.padExtendEnd(to, char.toString(), rotateString, trim)
+
+fun String?.padExtendEnd(to: Int, char: Char, rotateString: Boolean): String? = this?.padExtendEnd(to, char.toString(), rotateString)
+
+fun String?.padExtendEnd(to: Int, char: Char): String? = this?.padExtendEnd(to, char.toString())
+
+fun String?.padExtendEnd(to: Int, rotateString: Boolean, trim: Boolean): String? = this?.padExtendEnd(to, this[0], rotateString, trim)
+
+fun String?.padExtendEnd(to: Int, rotateString: Boolean): String? = this?.padExtendEnd(to, this[0], rotateString)
+
+fun String?.padExtendEnd(to: Int): String? = this?.padExtendEnd(to, this[0])
+
+fun String.padExtendStart(to: Int, str: String, rotateString: Boolean, trim: Boolean): String = when(trim) {
+    true -> when {
+        to == 0 || to - this.length isEqualTo 0 -> this
+        to - this.length isGreaterThan 0 -> {
+            val build = this.reversed().toStringBuilder()
+            val m = str.lastIndex
+            var i = 0
+            while (build.length isLessThan to) {
+                build.append(if (rotateString) str[i] else str)
+                if (i isEqualTo m) i = 0 else i++
+            }
+            build.reverse().toString()
+        }
+        else -> this.padShrinkStart(to, str, rotateString, trim)
     }
-    build.reverse().toString()
-} else if(to - this.length isEqualTo 0) this else {
-    this.padShrinkStart(to, str)
+    false -> {
+        val build = this.reversed().toStringBuilder()
+        val m = str.lastIndex
+        val n = this.length
+        var i = 0
+        while (build.length isLessThan n + (to * str.length)) {
+            build.append(if (rotateString) str[i] else str)
+            if (i isEqualTo m) i = 0 else i++
+        }
+        build.reverse().toString()
+    }
 }
+
+fun String.padExtendStart(to: Int, str: String, rotateString: Boolean): String = this.padExtendStart(to, str, rotateString, true)
+
+fun String.padExtendStart(to: Int, str: String): String = this.padExtendStart(to, str, true)
+
+fun String.padExtendStart(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String = this.padExtendStart(to, char.toString(), rotateString, trim)
+
+fun String.padExtendStart(to: Int, char: Char, rotateString: Boolean): String = this.padExtendStart(to, char.toString(), rotateString)
 
 fun String.padExtendStart(to: Int, char: Char): String = this.padExtendStart(to, char.toString())
 
+fun String.padExtendStart(to: Int, rotateString: Boolean, trim: Boolean): String = this.padExtendStart(to, this[0], rotateString, trim)
+
+fun String.padExtendStart(to: Int, rotateString: Boolean): String = this.padExtendStart(to, this[0], rotateString)
+
 fun String.padExtendStart(to: Int): String = this.padExtendStart(to, this[0])
 
-fun String?.padExtendStart(to: Int): String? = this?.padExtendStart(to)
+fun String?.padExtendStart(to: Int, str: String, rotateString: Boolean): String? = this?.padExtendStart(to, str, rotateString)
 
-fun String?.padExtendStart(to: Int, char: Char): String? = this?.padExtendStart(to, char)
+fun String?.padExtendStart(to: Int, str: String): String? = this?.padExtendStart(to, str)
 
-fun String.padShrinkEnd(to: Int, str: String): String = if(this.length - to isGreaterThan 0) {
-    val thisLength = this.length
-    val build = this.take(to).toStringBuilder()
-    val m = str.lastIndex
-    var i = 0
-    while(build.length isLessThan thisLength) {
-        build.append(str[i])
-        if (i isEqualTo m) i = 0 else i++
+fun String?.padExtendStart(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String? = this?.padExtendStart(to, char.toString(), rotateString, trim)
+
+fun String?.padExtendStart(to: Int, char: Char, rotateString: Boolean): String? = this?.padExtendStart(to, char.toString(), rotateString)
+
+fun String?.padExtendStart(to: Int, char: Char): String? = this?.padExtendStart(to, char.toString())
+
+fun String?.padExtendStart(to: Int, rotateString: Boolean, trim: Boolean): String? = this?.padExtendStart(to, this[0], rotateString, trim)
+
+fun String?.padExtendStart(to: Int, rotateString: Boolean): String? = this?.padExtendStart(to, this[0], rotateString)
+
+fun String?.padExtendStart(to: Int): String? = this?.padExtendStart(to, this[0])
+
+fun String.padShrinkEnd(to: Int, str: String, rotateString: Boolean, trim: Boolean): String = when {
+    to == 0 || to - this.length isEqualTo 0 -> this
+    to - this.length isGreaterThan 0 -> {
+        val thisLength = this.length
+        val build = this.take(to).toStringBuilder()
+        val m = str.lastIndex
+        var i = 0
+        while (build.length isLessThan thisLength) {
+            build.append(if (rotateString) str[i] else str)
+            if (i isEqualTo m) i = 0 else i++
+        }
+        build.toString()
     }
-    build.toString()
-} else if(this.length - to isEqualTo 0) this else {
-    this.padExtendEnd(to, str)
+    else -> this.padExtendEnd(to, str, rotateString, trim)
 }
+
+fun String.padShrinkEnd(to: Int, str: String, rotateString: Boolean): String = this.padShrinkEnd(to, str, rotateString, true)
+
+fun String.padShrinkEnd(to: Int, str: String): String = this.padShrinkEnd(to, str, true)
+
+fun String.padShrinkEnd(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String = this.padShrinkEnd(to, char.toString(), rotateString, trim)
+
+fun String.padShrinkEnd(to: Int, char: Char, rotateString: Boolean): String = this.padShrinkEnd(to, char.toString(), rotateString)
 
 fun String.padShrinkEnd(to: Int, char: Char): String = this.padShrinkEnd(to, char.toString())
 
+fun String.padShrinkEnd(to: Int, rotateString: Boolean, trim: Boolean): String = this.padShrinkEnd(to, this[0], rotateString, trim)
+
+fun String.padShrinkEnd(to: Int, rotateString: Boolean): String = this.padShrinkEnd(to, this[0], rotateString)
+
 fun String.padShrinkEnd(to: Int): String = this.padShrinkEnd(to, this[0])
 
-fun String?.padShrinkEnd(to: Int): String? = this?.padShrinkEnd(to)
+fun String?.padShrinkEnd(to: Int, str: String, rotateString: Boolean): String? = this?.padShrinkEnd(to, str, rotateString)
 
-fun String?.padShrinkEnd(to: Int, char: Char): String? = this?.padShrinkEnd(to, char)
+fun String?.padShrinkEnd(to: Int, str: String): String? = this?.padShrinkEnd(to, str)
 
-fun String.padShrinkStart(to: Int, str: String): String = if(this.length - to isGreaterThan 0) {
-    val thisLength = this.length
-    val build = this.reversed().take(to).toStringBuilder()
-    val m = str.lastIndex
-    var i = 0
-    while(build.length isLessThan thisLength) {
-        build.append(str[i])
-        if (i isEqualTo m) i = 0 else i++
+fun String?.padShrinkEnd(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String? = this?.padShrinkEnd(to, char.toString(), rotateString, trim)
+
+fun String?.padShrinkEnd(to: Int, char: Char, rotateString: Boolean): String? = this?.padShrinkEnd(to, char.toString(), rotateString)
+
+fun String?.padShrinkEnd(to: Int, char: Char): String? = this?.padShrinkEnd(to, char.toString())
+
+fun String?.padShrinkEnd(to: Int, rotateString: Boolean, trim: Boolean): String? = this?.padShrinkEnd(to, this[0], rotateString, trim)
+
+fun String?.padShrinkEnd(to: Int, rotateString: Boolean): String? = this?.padShrinkEnd(to, this[0], rotateString)
+
+fun String?.padShrinkEnd(to: Int): String? = this?.padShrinkEnd(to, this[0])
+
+fun String.padShrinkStart(to: Int, str: String, rotateString: Boolean, trim: Boolean): String = when {
+    to == 0 || to - this.length isEqualTo 0 -> this
+    this.length - to isGreaterThan 0 -> {
+        val thisLength = this.length
+        val build = this.reversed().take(to).toStringBuilder()
+        val m = str.lastIndex
+        var i = 0
+        while (build.length isLessThan thisLength) {
+            build.append(if (rotateString) str[i] else str)
+            if (i isEqualTo m) i = 0 else i++
+        }
+        build.reverse().toString()
     }
-    build.reverse().toString()
-} else if(this.length - to isEqualTo 0) this else {
-    this.padExtendStart(to, str)
+    else -> this.padExtendStart(to, str, rotateString, trim)
 }
+
+fun String.padShrinkStart(to: Int, str: String, rotateString: Boolean): String = this.padShrinkStart(to, str, rotateString, true)
+
+fun String.padShrinkStart(to: Int, str: String): String = this.padShrinkStart(to, str, true)
+
+fun String.padShrinkStart(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String = this.padShrinkStart(to, char.toString(), rotateString, trim)
+
+fun String.padShrinkStart(to: Int, char: Char, rotateString: Boolean): String = this.padShrinkStart(to, char.toString(), rotateString)
 
 fun String.padShrinkStart(to: Int, char: Char): String = this.padShrinkStart(to, char.toString())
 
+fun String.padShrinkStart(to: Int, rotateString: Boolean, trim: Boolean): String = this.padShrinkStart(to, this[0], rotateString, trim)
+
+fun String.padShrinkStart(to: Int, rotateString: Boolean): String = this.padShrinkStart(to, this[0], rotateString)
+
 fun String.padShrinkStart(to: Int): String = this.padShrinkStart(to, this[0])
 
-fun String?.padShrinkStart(to: Int): String? = this?.padShrinkStart(to)
+fun String?.padShrinkStart(to: Int, str: String, rotateString: Boolean): String? = this?.padShrinkStart(to, str, rotateString)
 
-fun String?.padShrinkStart(to: Int, char: Char): String? = this?.padShrinkStart(to, char)
+fun String?.padShrinkStart(to: Int, str: String): String? = this?.padShrinkStart(to, str)
+
+fun String?.padShrinkStart(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String? = this?.padShrinkStart(to, char.toString(), rotateString, trim)
+
+fun String?.padShrinkStart(to: Int, char: Char, rotateString: Boolean): String? = this?.padShrinkStart(to, char.toString(), rotateString)
+
+fun String?.padShrinkStart(to: Int, char: Char): String? = this?.padShrinkStart(to, char.toString())
+
+fun String?.padShrinkStart(to: Int, rotateString: Boolean, trim: Boolean): String? = this?.padShrinkStart(to, this[0], rotateString, trim)
+
+fun String?.padShrinkStart(to: Int, rotateString: Boolean): String? = this?.padShrinkStart(to, this[0], rotateString)
+
+fun String?.padShrinkStart(to: Int): String? = this?.padShrinkStart(to, this[0])
+
+/**
+ * this is overloadable
+ *
+ * @sample padOverload
+ */
+fun String.pad(depth: Int): String = this.padExtendStart(depth, "tabulator ", false, false)
+
+/**
+ * see [String.padCallback] for how to overload this function
+ */
+fun String.pad(): String = this.pad(1)
+
+/**
+ * see [String.padCallback] for how to overload this function
+ */
+fun String?.pad(depth: Int): String? = this?.pad(depth)
+
+/**
+ * see [String.padCallback] for how to overload this function
+ */
+fun String?.pad(): String? = this?.pad()
+
+private fun padOverload() {
+    var depth = 0
+    while (depth != 5) {
+        // overload pad callback
+        fun String.padCallback(depth: Int): String = this.padExtendStart(
+            depth,
+            "    ",
+            false,
+            false
+        )
+
+        // redirect pad() to this instance of pad(depth)
+        fun String.pad(): String = this.pad(depth)
+        println("depth: $depth".pad())
+        run {
+            // update depth
+            fun String.pad(depth: Int): String = this.padExtendStart(
+                depth+1,
+                "    ",
+                false,
+                false
+            )
+
+            // redirect pad() to this instance of pad(depth)
+            fun String.pad(): String = this.pad(depth)
+
+            println("depth: $depth".pad())
+        }
+        depth += 1
+    }
+}

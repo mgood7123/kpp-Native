@@ -9,8 +9,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="05383308-e3c5-4cb9-b304-d7ec7071a732" name="Default Changelist" comment="">
+    <list default="true" id="05383308-e3c5-4cb9-b304-d7ec7071a732" name="Default Changelist" comment="can now implement or operator">
       <change afterPath="$PROJECT_DIR$/src/linuxMain/kotlin/preprocessor/utils/core/algorithms/BinaryTree.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/linuxMain/kotlin/preprocessor/utils/core/algorithms/CYCLIC_LOOP.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/4.10/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/4.10/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/4.10/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/4.10/fileHashes/fileHashes.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/4.10/taskHistory/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/4.10/taskHistory/taskHistory.bin" afterDir="false" />
@@ -21,7 +22,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/bin/linux/releaseExecutable/kpp.kexe" beforeDir="false" afterPath="$PROJECT_DIR$/build/bin/linux/releaseExecutable/kpp.kexe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/linuxMain/kotlin/preprocessor/core/Parser.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/linuxMain/kotlin/preprocessor/core/Parser.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/linuxMain/kotlin/preprocessor/utils/class/extensions/List.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/linuxMain/kotlin/preprocessor/utils/class/extensions/List.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/linuxMain/kotlin/preprocessor/utils/class/extensions/String.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/linuxMain/kotlin/preprocessor/utils/class/extensions/String.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/linuxMain/kotlin/preprocessor/utils/core/algorithms/Tree.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/linuxMain/kotlin/preprocessor/utils/core/algorithms/Tree.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/linuxMain/kotlin/sample/kotlin/Kotlin.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/linuxMain/kotlin/sample/kotlin/Kotlin.kt" afterDir="false" />
     </list>
@@ -167,7 +168,14 @@
       <option name="project" value="LOCAL" />
       <updated>1568983315164</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="improved AST representation and optimize out group nodes&#10;&#10;add PG() for Parser().Group() for easier readability">
+      <created>1569087850003</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1569087850003</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -193,6 +201,7 @@
     <MESSAGE value="bug fixes, need to fix ambiguity" />
     <MESSAGE value="use an Abstract Syntax Tree instead" />
     <MESSAGE value="improved AST representation and optimize out group nodes&#10;&#10;add PG() for Parser().Group() for easier readability" />
-    <option name="LAST_COMMIT_MESSAGE" value="improved AST representation and optimize out group nodes&#10;&#10;add PG() for Parser().Group() for easier readability" />
+    <MESSAGE value="IMPROVED: can now correctly implement the following:&#10;&#10;(parentheses)&#10;!NOT operator&#10;or operator&#10;&#10;for example&#10;    val A = parseStream.IsSequenceZeroOrMany(&quot;A&quot;)&#10;    val B = parseStream.IsSequenceOneOrMany(&quot;B&quot;)&#10;    val C = parseStream.IsSequenceOnce(&quot;C&quot;)&#10;    val D = parseStream.IsSequenceOneOrMany(&quot;DE&quot;)&#10;    val E = parseStream.IsSequenceOnce(&quot;E&quot;)&#10;    val CD = C and D&#10;    val CDEB = Parenthesis(Parenthesis(Parenthesis(CD) and E) or B)&#10;    val ABCD = AB and C and CD and CDEB and CDEB and !CDEB and parseStream.IsSequenceOnce(&quot;F&quot;)" />
+    <option name="LAST_COMMIT_MESSAGE" value="IMPROVED: can now correctly implement the following:&#10;&#10;(parentheses)&#10;!NOT operator&#10;or operator&#10;&#10;for example&#10;    val A = parseStream.IsSequenceZeroOrMany(&quot;A&quot;)&#10;    val B = parseStream.IsSequenceOneOrMany(&quot;B&quot;)&#10;    val C = parseStream.IsSequenceOnce(&quot;C&quot;)&#10;    val D = parseStream.IsSequenceOneOrMany(&quot;DE&quot;)&#10;    val E = parseStream.IsSequenceOnce(&quot;E&quot;)&#10;    val CD = C and D&#10;    val CDEB = Parenthesis(Parenthesis(Parenthesis(CD) and E) or B)&#10;    val ABCD = AB and C and CD and CDEB and CDEB and !CDEB and parseStream.IsSequenceOnce(&quot;F&quot;)" />
   </component>
 </project>

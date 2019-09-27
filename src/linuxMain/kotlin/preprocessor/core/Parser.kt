@@ -1,10 +1,8 @@
 package preprocessor.core
 
-import preprocessor.base.globalVariables
 import preprocessor.utils.`class`.extensions.lastIndex
 import preprocessor.utils.core.abort
 import preprocessor.utils.core.algorithms.Stack
-import preprocessor.utils.`class`.extensions.tokenize
 import preprocessor.utils.core.algorithms.Tree
 
 /**
@@ -214,6 +212,15 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
         val value: String = str
         var type: Int? = null
 
+        operator fun not(): AbstractSyntaxTree {
+            val x = AbstractSyntaxTree()
+            x.AST.leftParenthesis().also {
+                it.NOT = true
+            }.add(promoteToAbstractSyntaxTree(0).AST)
+            x.AST.rightParenthesis()
+            return x
+        }
+
         fun printList() = list.forEach {
             val x = it.get()
             println(
@@ -256,30 +263,10 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
         }
 
         fun peek(): Boolean {
-            val x = cloneList(list).iterator()
-            var m = 0
-            val max = list.size
-            while (x.hasNext()) {
-                val y = x.next().get()
-                if (
-                    when (y) {
-                        is IsSequenceOnce -> y.peek()
-                        is IsSequenceOneOrMany -> y.peek()
-                        else -> (y as IsSequenceZeroOrMany).peek()
-                    }
-                ) {
-                    if (
-                        when (y) {
-                            is IsSequenceOnce -> y.pop()
-                            is IsSequenceOneOrMany -> y.pop()
-                            else -> (y as IsSequenceZeroOrMany).pop()
-                        }
-                    ) m++
-                    else break
-                } else break
-            }
-            if (m == max) return true
-            return false
+            val tmp = parent.tokenList.clone()
+            val result = pop()
+            parent.tokenList = tmp
+            return result
         }
 
         fun pop(): Boolean {
@@ -411,6 +398,15 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
         var type: Int? = null
         private var seq: IsSequenceOneOrMany = IsSequenceOneOrMany(value)
 
+        operator fun not(): AbstractSyntaxTree {
+            val x = AbstractSyntaxTree()
+            x.AST.leftParenthesis().also {
+                it.NOT = true
+            }.add(promoteToAbstractSyntaxTree(0).AST)
+            x.AST.rightParenthesis()
+            return x
+        }
+
         fun printList() = list.forEach {
             val x = it.get()
             println(
@@ -466,18 +462,10 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
         }
 
         private fun peekMultiple(): Boolean {
-            val x = cloneList(list).iterator()
-            var m = 0
-            val max = list.size
-            while (x.hasNext()) {
-                val y = x.next().zeroOrMany!!
-                if (y.peek()) {
-                    if (y.pop()) m++
-                    else break
-                } else break
-            }
-            if (m == max) return true
-            return false
+            val tmp = parent.tokenList.clone()
+            val result = popMultiple()
+            parent.tokenList = tmp
+            return result
         }
 
         /**
@@ -557,6 +545,15 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
         val value: String = str
         var type: Int? = null
 
+        operator fun not(): AbstractSyntaxTree {
+            val x = AbstractSyntaxTree()
+            x.AST.leftParenthesis().also {
+                it.NOT = true
+            }.add(promoteToAbstractSyntaxTree(0).AST)
+            x.AST.rightParenthesis()
+            return x
+        }
+
         fun printList() = list.forEach {
             val x = it.get()
             println(
@@ -613,7 +610,12 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
          * @see toString
          * @see pop
          */
-        fun peek(): Boolean = if (list.size != 0) peekMultiple() else peekSingle()
+        fun peek(): Boolean {
+            val tmp = parent.tokenList.clone()
+            val result = if (list.size != 0) peekMultiple() else peekSingle()
+            parent.tokenList = tmp
+            return result
+        }
 
         private fun peekSingle(): Boolean {
             val o = clone().IsSequenceOnce(value)
@@ -732,6 +734,15 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
         var list: MutableList<Types> = mutableListOf()
         var type: Int? = null
 
+        operator fun not(): AbstractSyntaxTree {
+            val x = AbstractSyntaxTree()
+            x.AST.leftParenthesis().also {
+                it.NOT = true
+            }.add(promoteToAbstractSyntaxTree(0).AST)
+            x.AST.rightParenthesis()
+            return x
+        }
+
         fun printList() = list.forEach {
             val x = it.get()
             println(
@@ -795,10 +806,15 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
          * @see toString
          * @see pop
          */
-        fun peek(): Boolean = if (list.size != 0) {
-            if (type == Types().AND) peekMultipleAnd()
-            else peekMultipleOr()
-        } else peekSingle()
+        fun peek(): Boolean {
+            val tmp = parent.tokenList.clone()
+            val result = if (list.size != 0) {
+                if (type == Types().AND) peekMultipleAnd()
+                else peekMultipleOr()
+            } else peekSingle()
+            parent.tokenList = tmp
+            return result
+        }
 
         private fun peekSingle(): Boolean {
             val tmp = tokenList.clone()
@@ -936,39 +952,21 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
 
         val parent = this@Parser
         var list: MutableList<LIST> = mutableListOf()
+
+        operator fun not(): AbstractSyntaxTree {
+            val x = AbstractSyntaxTree()
+            x.AST.leftParenthesis().also {
+                it.NOT = true
+            }.add(AST)
+            x.AST.rightParenthesis()
+            return x
+        }
+
         fun add(List: Multi, type: Int) {
             val x = LIST()
             x.type = type
             x.list = List
             AST.current!!.add(x)
-            // append list in order
-            if (list.size != 0) {
-                val t = list.lastIndex()
-                if (t.type == Types().AND) {
-                    if (type == Types().AND) {
-                        t.list = t.list!! and List
-                    } else {
-                        val x = LIST()
-                        x.type = type
-                        x.list = List
-                        list.add(x)
-                    }
-                } else {
-                    if (type == Types().AND) {
-                        val x = LIST()
-                        x.type = type
-                        x.list = List
-                        list.add(x)
-                    } else {
-                        t.list = t.list!! and List
-                    }
-                }
-            } else {
-                val x = LIST()
-                x.type = type
-                x.list = List
-                list.add(x)
-            }
         }
 
         fun printList() = list.forEach {
@@ -976,30 +974,8 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
         }
 
         infix fun and(right: AbstractSyntaxTree): AbstractSyntaxTree {
-            AST.current!!.add(right.AST)
-            // append list in order
-            if (list.size != 0) {
-                val t = this.list.lastIndex()
-                if (t.type == Types().AND) {
-                    right.list.forEach {
-                        t.list = t.list!! and it.list!!
-                    }
-                } else {
-                    val x = LIST()
-                    x.type = Types().AND
-                    right.list.forEach {
-                        x.list = x.list!! and it.list!!
-                    }
-                    list.add(x)
-                }
-            } else {
-                val x = LIST()
-                x.type = Types().AND
-                right.list.forEach {
-                    x.list = x.list!! and it.list!!
-                }
-                list.add(x)
-            }
+            AST.current!!.TAG = "AND"
+            AST.current!!.add("AND", right.AST)
             return this
         }
 
@@ -1007,24 +983,8 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             val x = LIST()
             x.type = Types().AND
             x.list = right
-            AST.current!!.add(x)
-            // append list in order
-            if (this.list.size != 0) {
-                val t = this.list.lastIndex()
-                if (t.type == Types().AND) {
-                    t.list = t.list!! and right
-                } else {
-                    val x = LIST()
-                    x.type = Types().AND
-                    x.list = Multi(right.value).also { it.list.addAll(right.list) }
-                    list.add(x)
-                }
-            } else {
-                val x = LIST()
-                x.type = Types().AND
-                x.list = Multi(right.value).also { it.list.addAll(right.list) }
-                list.add(x)
-            }
+            AST.current!!.TAG = "AND"
+            AST.current!!.add("AND", x)
             return this
         }
 
@@ -1032,24 +992,8 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             val x = LIST()
             x.type = Types().AND
             x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
-            AST.current!!.add(x)
-            // append list in order
-            if (this.list.size != 0) {
-                val t = this.list.lastIndex()
-                if (t.type == Types().AND) {
-                    t.list = t.list!! and right
-                } else {
-                    val x = LIST()
-                    x.type = Types().AND
-                    x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
-                    list.add(x)
-                }
-            } else {
-                val x = LIST()
-                x.type = Types().AND
-                x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
-                list.add(x)
-            }
+            AST.current!!.TAG = "AND"
+            AST.current!!.add("AND", x)
             return this
         }
 
@@ -1057,24 +1001,8 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             val x = LIST()
             x.type = Types().AND
             x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
-            AST.current!!.add(x)
-            // append list in order
-            if (this.list.size != 0) {
-                val t = this.list.lastIndex()
-                if (t.type == Types().AND) {
-                    t.list = t.list!! and right
-                } else {
-                    val x = LIST()
-                    x.type = Types().AND
-                    x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
-                    list.add(x)
-                }
-            } else {
-                val x = LIST()
-                x.type = Types().AND
-                x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
-                list.add(x)
-            }
+            AST.current!!.TAG = "AND"
+            AST.current!!.add("AND", x)
             return this
         }
 
@@ -1082,223 +1010,156 @@ class Parser(tokens: String, stackMethod: (String) -> Stack<String>) {
             val x = LIST()
             x.type = Types().AND
             x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
-            AST.current!!.add(x)
-            // append list in order
-            if (this.list.size != 0) {
-                val t = this.list.lastIndex()
-                if (t.type == Types().AND) {
-                    t.list = t.list!! and right
-                } else {
-                    val x = LIST()
-                    x.type = Types().AND
-                    x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
-                    list.add(x)
-                }
-            } else {
-                val x = LIST()
-                x.type = Types().AND
-                x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
-                list.add(x)
-            }
+            AST.current!!.TAG = "AND"
+            AST.current!!.add("AND", x)
             return this
         }
 
         infix fun or(right: AbstractSyntaxTree): AbstractSyntaxTree {
-            AST.current!!.parent!!.add(right.AST)
-            // append list in order
-            if (list.size != 0) {
-                val t = this.list.lastIndex()
-                if (t.type == Types().OR) {
-                    right.list.forEach {
-                        t.list = t.list!! or it.list!!
-                    }
-                } else {
-                    val x = LIST()
-                    x.type = Types().OR
-                    right.list.forEach {
-                        x.list = x.list!! and it.list!!
-                    }
-                    list.add(x)
-                }
-            } else {
-                val x = LIST()
-                x.type = Types().OR
-                right.list.forEach {
-                    x.list = x.list!! and it.list!!
-                }
-                list.add(x)
-            }
+            AST.current!!.TAG = "OR"
+            AST.current!!.parent!!.add("OR", right.AST)
             return this
         }
 
         infix fun or(right: Multi): AbstractSyntaxTree {
             val x = LIST()
-            x.type = Types().AND
+            x.type = Types().OR
             x.list = right
-            AST.current!!.parent!!.add(x)
-            // append list in order
-            if (this.list.size != 0) {
-                val t = this.list.lastIndex()
-                if (t.type == Types().OR) {
-                    t.list = t.list!! or right
-                } else {
-                    val x = LIST()
-                    x.type = Types().OR
-                    x.list = Multi(right.value).also { it.list.addAll(right.list) }
-                    list.add(x)
-                }
-            } else {
-                val x = LIST()
-                x.type = Types().OR
-                x.list = Multi(right.value).also { it.list.addAll(right.list) }
-                list.add(x)
-            }
+            AST.current!!.TAG = "OR"
+            AST.current!!.parent!!.add("OR", x)
             return this
         }
 
         infix fun or(right: IsSequenceZeroOrMany): AbstractSyntaxTree {
             val x = LIST()
-            x.type = Types().AND
-            x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
-            AST.current!!.parent!!.add(x)
-            // append list in order
-            if (this.list.size != 0) {
-                val t = this.list.lastIndex()
-                if (t.type == Types().OR) {
-                    t.list = t.list!! or right
-                } else {
-                    val x = LIST()
-                    x.type = Types().OR
-                    x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
-                    list.add(x)
-                }
-            } else {
-                val x = LIST()
-                x.type = Types().OR
-                x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
-                list.add(x)
-            }
+            x.type = Types().OR
+            x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
+            AST.current!!.TAG = "OR"
+            AST.current!!.parent!!.add("OR", x)
             return this
         }
 
         infix fun or(right: IsSequenceOneOrMany): AbstractSyntaxTree {
             val x = LIST()
-            x.type = Types().AND
-            x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
-            AST.current!!.parent!!.add(x)
-            // append list in order
-            if (this.list.size != 0) {
-                val t = this.list.lastIndex()
-                if (t.type == Types().OR) {
-                    t.list = t.list!! or right
-                } else {
-                    val x = LIST()
-                    x.type = Types().OR
-                    x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
-                    list.add(x)
-                }
-            } else {
-                val x = LIST()
-                x.type = Types().OR
-                x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
-                list.add(x)
-            }
+            x.type = Types().OR
+            x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
+            AST.current!!.TAG = "OR"
+            AST.current!!.parent!!.add("OR", x)
             return this
         }
 
         infix fun or(right: IsSequenceOnce): AbstractSyntaxTree {
             val x = LIST()
-            x.type = Types().AND
-            x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.AND) }) }
-            AST.current!!.parent!!.add(x)
-            // append list in order
-            if (this.list.size != 0) {
-                val t = this.list.lastIndex()
-                if (t.type == Types().OR) {
-                    t.list = t.list!! or right
-                } else {
-                    val x = LIST()
-                    x.type = Types().OR
-                    x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
-                    list.add(x)
-                }
-            } else {
-                val x = LIST()
-                x.type = Types().OR
-                x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
-                list.add(x)
-            }
+            x.type = Types().OR
+            x.list = Multi(right.value).also { it.list.add(Types().also { it.add(right, it.OR) }) }
+            AST.current!!.TAG = "OR"
+            AST.current!!.parent!!.add("OR", x)
             return this
         }
+
+        fun peek(): Boolean {
+            val tmp = parent.tokenList.clone()
+            val result = pop()
+            parent.tokenList = tmp
+            return result
+        }
+
+        fun pop(): Boolean = AST.process(
+            match = {
+                val y = it!!.list!!.list[0].get()
+                val result = if (
+                    when (y) {
+                        is IsSequenceOnce -> y.peek()
+                        is IsSequenceOneOrMany -> y.peek()
+                        else -> (y as IsSequenceZeroOrMany).peek()
+                    }
+                ) when (y) {
+                    is IsSequenceOnce -> y.pop()
+                    is IsSequenceOneOrMany -> y.pop()
+                    else -> (y as IsSequenceZeroOrMany).pop()
+                } else false
+                result
+            },
+            getValue = {
+
+                val x = it!!.list!!.list[0]
+                val str = when (val z = x.get()) {
+                    is preprocessor.core.Parser.IsSequenceOnce -> "${z.value} as IsSequenceOnce ${x.typeToString()}"
+                    is preprocessor.core.Parser.IsSequenceOneOrMany -> "${z.value} as IsSequenceOneOrMany ${x.typeToString()}"
+                    else -> "${(z as preprocessor.core.Parser.IsSequenceZeroOrMany).value} as IsSequenceZeroOrMany ${x.typeToString()}"
+                }
+                str
+            }
+        )
     }
 
     fun Group(parsers: AbstractSyntaxTree): AbstractSyntaxTree {
         val x = AbstractSyntaxTree()
-        x.AST.groupBegin().add(parsers.AST)
-        x.AST.groupEnd()
+        x.AST.leftParenthesis().add(parsers.AST)
+        x.AST.rightParenthesis()
         return x
     }
 
     fun Group(parsers: Multi): AbstractSyntaxTree {
         val x = AbstractSyntaxTree()
-        x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(Types().AND).AST)
-        x.AST.groupEnd()
+        x.AST.leftParenthesis().add(parsers.promoteToAbstractSyntaxTree(Types().AND).AST)
+        x.AST.rightParenthesis()
         return x
     }
 
     fun Group(parsers: IsSequenceZeroOrMany): AbstractSyntaxTree {
         val x = AbstractSyntaxTree()
-        x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(Types().AND).AST)
-        x.AST.groupEnd()
+        x.AST.leftParenthesis().add(parsers.promoteToAbstractSyntaxTree(Types().AND).AST)
+        x.AST.rightParenthesis()
         return x
     }
 
     fun Group(parsers: IsSequenceOneOrMany): AbstractSyntaxTree {
         val x = AbstractSyntaxTree()
-        x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(Types().AND).AST)
-        x.AST.groupEnd()
+        x.AST.leftParenthesis().add(parsers.promoteToAbstractSyntaxTree(Types().AND).AST)
+        x.AST.rightParenthesis()
         return x
     }
 
     fun Group(parsers: IsSequenceOnce): AbstractSyntaxTree {
         val x = AbstractSyntaxTree()
-        x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(Types().AND).AST)
-        x.AST.groupEnd()
+        x.AST.leftParenthesis().add(parsers.promoteToAbstractSyntaxTree(Types().AND).AST)
+        x.AST.rightParenthesis()
         return x
     }
 }
 
-fun PG(parsers: Parser.AbstractSyntaxTree): Parser.AbstractSyntaxTree {
+fun Parenthesis(parsers: Parser.AbstractSyntaxTree): Parser.AbstractSyntaxTree {
     val x = parsers.parent.AbstractSyntaxTree()
-    x.AST.groupBegin().add(parsers.AST)
-    x.AST.groupEnd()
+    x.AST.leftParenthesis().add(parsers.AST)
+    x.AST.rightParenthesis()
     return x
 }
 
-fun PG(parsers: Parser.Multi): Parser.AbstractSyntaxTree {
+fun Parenthesis(parsers: Parser.Multi): Parser.AbstractSyntaxTree {
     val x = parsers.parent.AbstractSyntaxTree()
-    x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(parsers.parent.Types().AND).AST)
-    x.AST.groupEnd()
+    x.AST.leftParenthesis().add(parsers.promoteToAbstractSyntaxTree(parsers.parent.Types().AND).AST)
+    x.AST.rightParenthesis()
     return x
 }
 
-fun PG(parsers: Parser.IsSequenceZeroOrMany): Parser.AbstractSyntaxTree {
+fun Parenthesis(parsers: Parser.IsSequenceZeroOrMany): Parser.AbstractSyntaxTree {
     val x = parsers.parent.AbstractSyntaxTree()
-    x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(parsers.parent.Types().AND).AST)
-    x.AST.groupEnd()
+    x.AST.leftParenthesis().add(parsers.promoteToAbstractSyntaxTree(parsers.parent.Types().AND).AST)
+    x.AST.rightParenthesis()
     return x
 }
 
-fun PG(parsers: Parser.IsSequenceOneOrMany): Parser.AbstractSyntaxTree {
+fun Parenthesis(parsers: Parser.IsSequenceOneOrMany): Parser.AbstractSyntaxTree {
     val x = parsers.parent.AbstractSyntaxTree()
-    x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(parsers.parent.Types().AND).AST)
-    x.AST.groupEnd()
+    x.AST.leftParenthesis().add(parsers.promoteToAbstractSyntaxTree(parsers.parent.Types().AND).AST)
+    x.AST.rightParenthesis()
     return x
 }
 
-fun PG(parsers: Parser.IsSequenceOnce): Parser.AbstractSyntaxTree {
+fun Parenthesis(parsers: Parser.IsSequenceOnce): Parser.AbstractSyntaxTree {
     val x = parsers.parent.AbstractSyntaxTree()
-    x.AST.groupBegin().add(parsers.promoteToAbstractSyntaxTree(parsers.parent.Types().AND).AST)
-    x.AST.groupEnd()
+    x.AST.leftParenthesis().add(parsers.promoteToAbstractSyntaxTree(parsers.parent.Types().AND).AST)
+    x.AST.rightParenthesis()
     return x
 }
