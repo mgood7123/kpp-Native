@@ -1,19 +1,61 @@
 package preprocessor.utils.core.algorithms
 
 @Suppress("unused")
-class LinkedList<T> : Iterable<T?> {
+class LinkedList<T> : Iterable<T> {
 
-    inner class Node<T>(value: T?){
-        var value:T? = value
-        var next: Node<T>? = null
-        var previous:Node<T>? = null
+    constructor() {}
+    constructor(vararg item: T) {
+        item.forEach {
+            appendLast(it)
+        }
     }
-    private var head:Node<T>? = null
+
+    constructor(convert: (t: T) -> T, vararg item: T) {
+        item.forEach {
+            appendLast(convert(it))
+        }
+    }
+
+    constructor(isIterable: Boolean, vararg item: T) {
+        if (isIterable) {
+            LinkedList<T>().also { l ->
+                item.forEach {
+                    val item = (it as Iterable<T>).iterator()
+                    while (item.hasNext()) l.appendLast(item.next())
+                }
+            }
+        }
+    }
+
+    /**
+     * @sample usage
+     */
+    constructor(arrayIterator: (t: T, ACTION: (Any?) -> Int) -> Unit, ACTION: (item: Any?) -> T, vararg item: T) {
+        item.forEach {
+            arrayIterator(it) { item -> appendLast(ACTION(item)) }
+        }
+    }
+
+    private fun usage() {
+        val x = LinkedList(
+            { t, ACTION -> t.forEach { ACTION(it) } },  // arrayIterator
+            { (it as Char).toString()},                 // ACTION
+            "hi", "bye"                          // item
+        )
+    }
+
+    inner class Node(value: T) {
+        var value: T = value
+        var next: Node? = null
+        var previous: Node? = null
+    }
+
+    private var head: Node? = null
     fun isEmpty(): Boolean = head == null
-    fun first(): Node<T>? = head
-    fun last(): Node<T>? {
+    fun first(): Node? = head
+    fun last(): Node? {
         var node = head
-        if (node != null){
+        if (node != null) {
             while (node?.next != null) {
                 node = node.next
             }
@@ -22,11 +64,14 @@ class LinkedList<T> : Iterable<T?> {
             return null
         }
     }
-    fun count():Int {
+    fun isFirst(index: Int) = nodeAtIndex(index) == first()
+    fun isLast(index: Int) = nodeAtIndex(index) == last()
+
+    fun count(): Int {
         var node = head
-        if (node != null){
+        if (node != null) {
             var counter = 1
-            while (node?.next != null){
+            while (node?.next != null) {
                 node = node.next
                 counter += 1
             }
@@ -35,7 +80,8 @@ class LinkedList<T> : Iterable<T?> {
             return 0
         }
     }
-    fun nodeAtIndex(index: Int) : Node<T>? {
+
+    fun nodeAtIndex(index: Int): Node? {
         if (index >= 0) {
             var node = head
             var i = index
@@ -47,7 +93,35 @@ class LinkedList<T> : Iterable<T?> {
         }
         return null
     }
-    fun append(value: T?) {
+
+    operator fun get(i: Int) = when {
+        isEmpty() || i > count() -> throw IndexOutOfBoundsException("index: $i, count: ${count()}")
+        else -> nodeAtIndex(i)!!.value
+    }
+    operator fun set(i: Int, value: T) = when {
+        isEmpty() || i > count() -> throw IndexOutOfBoundsException("index: $i, count: ${count()}")
+        else -> nodeAtIndex(i)!!.value = value
+    }
+
+    var size = 0
+
+    fun append(value: T) = appendLast(value)
+
+    fun appendFirst(value: T): Int {
+        var newNode = Node(value)
+        var firstNode = this.first()
+        if (firstNode != null) {
+            newNode.next = firstNode
+            firstNode.previous = newNode
+            head = newNode
+        } else {
+            head = newNode
+        }
+        size++
+        return indexOfNode(newNode)
+    }
+
+    fun appendLast(value: T): Int {
         var newNode = Node(value)
         var lastNode = this.last()
         if (lastNode != null) {
@@ -56,18 +130,11 @@ class LinkedList<T> : Iterable<T?> {
         } else {
             head = newNode
         }
+        size++
+        return indexOfNode(newNode)
     }
-    fun appendLast(value: T?) {
-        var newNode = Node(value)
-        var lastNode = this.last()
-        if (lastNode != null) {
-            newNode.previous = newNode
-            lastNode.next = lastNode
-        } else {
-            head = newNode
-        }
-    }
-    fun removeNode(node: Node<T>):T? {
+
+    fun removeNode(node: Node): T {
         val prev = node.previous
         val next = node.next
         if (prev != null) {
@@ -78,33 +145,37 @@ class LinkedList<T> : Iterable<T?> {
         next?.previous = prev
         node.previous = null
         node.next = null
+        size--
         return node.value
     }
-    fun removeLast() : T? {
-        val last = this.last()
-        if (last != null) {
-            return removeNode(last)
-        } else {
-            return null
-        }
-    }
-    fun removeAtIndex(index: Int):T? {
-        val node = nodeAtIndex(index)
-        if (node != null) {
-            return removeNode(node)
-        } else {
-            return null
-        }
-    }
+
+    fun removeLast() = last()?.let { removeNode(it) }
+
+    fun removeAtIndex(index: Int) = nodeAtIndex(index)?.let { removeNode(it) }
+
     override fun toString(): String {
         var s = "["
         var node = head
         while (node != null) {
             s += "${node.value}"
             node = node.next
-            if (node != null) { s += ", " }
+            if (node != null) {
+                s += ", "
+            }
         }
         return s + "]"
+    }
+
+    /**
+     * returns this LinkedList as a string with each element appended to the end of the string
+     */
+    fun toStringConcat(): String {
+        val result = StringBuilder()
+        val dq = iterator()
+        while (dq.hasNext()) {
+            result.append(dq.next())
+        }
+        return result.toString()
     }
 
     fun contains(element: T): Boolean {
@@ -116,8 +187,19 @@ class LinkedList<T> : Iterable<T?> {
         return false
     }
 
-    override fun iterator(): kotlin.collections.Iterator<T?> {
-        return object : kotlin.collections.Iterator<T?> {
+    fun indexOfNode(node: Node): Int {
+        var currentNode = head
+        var index = 0
+        while (currentNode != null) {
+            if (node == currentNode) return index
+            index++
+            currentNode = currentNode.next
+        }
+        throw NoSuchElementException()
+    }
+
+    override fun iterator(): Iterator<T> {
+        return object : Iterator<T> {
             var node = head
             /**
              * Returns true if the iteration has more elements.
@@ -133,18 +215,20 @@ class LinkedList<T> : Iterable<T?> {
              *
              * @see hasNext
              */
-            override fun next(): T? {
+            override fun next(): T {
                 if (node == null) throw NoSuchElementException()
-                val var0 = node?.value
+                val var0 = node!!.value
                 node = node?.next
                 return var0
             }
         }
     }
 
-    fun clone(): LinkedList<T> = LinkedList<T>().also {l -> forEach { l.append(it) } }
+    fun clone(): LinkedList<T> = LinkedList<T>().also { l -> forEach { l.append(it) } }
 
-    fun clear() { while (!isEmpty()) removeLast() }
+    fun clear() {
+        while (!isEmpty()) removeLast()
+    }
 
     fun test() {
         val ll = LinkedList<String>()

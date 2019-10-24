@@ -7,6 +7,7 @@
 package preprocessor.utils.`class`.extensions
 
 import preprocessor.core.Parser
+import preprocessor.utils.core.algorithms.LinkedList
 import preprocessor.utils.core.algorithms.Stack
 import kotlin.math.max
 
@@ -21,7 +22,7 @@ import kotlin.math.max
  */
 fun String.tokenizeVararg(vararg delimiters: String, returnDelimiters: Boolean = false): List<String> {
     var res = listOf(this)
-    delimiters.forEach {str ->
+    delimiters.forEach { str ->
         res = res.flatMap {
             it.split(str).flatMap {
                 listOf(it, str)
@@ -44,7 +45,9 @@ fun String.tokenizeVararg(vararg delimiters: String, returnDelimiters: Boolean =
  * @see split
  * @see tokenize
  */
-fun String?.tokenizeVararg(vararg delimiters: String, returnDelimiters: Boolean = false): List<String>? = this?.tokenizeVararg(delimiters = *delimiters, returnDelimiters = returnDelimiters)
+fun String?.tokenizeVararg(vararg delimiters: String, returnDelimiters: Boolean = false): List<String>? =
+    this?.tokenizeVararg(delimiters = *delimiters, returnDelimiters = returnDelimiters)
+
 /**
  * splits the **string** into **tokens** delimited by a sequence of [delimiters]
  *
@@ -61,8 +64,8 @@ fun String?.tokenizeVararg(vararg delimiters: String, returnDelimiters: Boolean 
  */
 fun String.tokenize(delimiters: String, returnDelimiters: Boolean = false): List<String> {
     var res = listOf(this)
-    val d = delimiters.toStack()
-    d.forEach {str ->
+    val d = delimiters.toStack
+    d.forEach { str ->
         res = res.flatMap {
             it.split(str!!).flatMap {
                 listOf(it, str)
@@ -90,7 +93,9 @@ fun String.tokenize(delimiters: String, returnDelimiters: Boolean = false): List
  * @see split
  * @see tokenizeVararg
  */
-fun String?.tokenize(delimiters: String, returnDelimiters: Boolean = false): List<String>? = this?.tokenize(delimiters, returnDelimiters)
+fun String?.tokenize(delimiters: String, returnDelimiters: Boolean = false): List<String>? =
+    this?.tokenize(delimiters, returnDelimiters)
+
 /**
  * collapses the string based on the specified **token**
  *
@@ -111,14 +116,13 @@ fun String?.tokenize(delimiters: String, returnDelimiters: Boolean = false): Lis
  */
 fun String.collapse(token: String): String {
     val str = StringBuilder()
-    val parser = Parser(this) { it.toStack() }
+    val parser = Parser(this) { it.toStack }
     val t = parser.IsSequenceOneOrMany(token)
     while (parser.peek() != null) {
         if (t.peek()) {
             t.pop()
             str.append(token)
-        }
-        else str.append(parser.pop()!!)
+        } else str.append(parser.pop()!!)
     }
     return str.toString()
 }
@@ -142,6 +146,7 @@ fun String.collapse(token: String): String {
  * @see expand
  */
 fun String?.collapse(token: String): String? = this?.collapse(token)
+
 /**
  * collapses the string based on the specified **token**, replacing **token** with **replaceWith**
  *
@@ -170,14 +175,13 @@ fun String?.collapse(token: String): String? = this?.collapse(token)
  */
 fun String.collapse(token: String, replaceWith: String): String {
     val str = StringBuilder()
-    val parser = Parser(this) { it.toStack() }
+    val parser = Parser(this) { it.toStack }
     val t = parser.IsSequenceOneOrMany(token)
     while (parser.peek() != null) {
         if (t.peek()) {
             t.pop()
             str.append(replaceWith)
-        }
-        else str.append(parser.pop()!!)
+        } else str.append(parser.pop()!!)
     }
     return str.toString()
 }
@@ -209,6 +213,7 @@ fun String.collapse(token: String, replaceWith: String): String {
  * @see expand
  */
 fun String?.collapse(token: String, replaceWith: String): String? = this?.collapse(token, replaceWith)
+
 /**
  * expands the string based on the specified **token**, replacing **token** with **to**
  *
@@ -224,14 +229,13 @@ fun String?.collapse(token: String, replaceWith: String): String? = this?.collap
  */
 fun String.expand(token: String, to: String): String {
     val str = StringBuilder()
-    val parser = Parser(this) { it.toStack() }
+    val parser = Parser(this) { it.toStack }
     val t = parser.IsSequenceOnce(token)
     while (parser.peek() != null) {
         if (t.peek()) {
             t.pop()
             str.append(to)
-        }
-        else str.append(parser.pop()!!)
+        } else str.append(parser.pop()!!)
     }
     return str.toString()
 }
@@ -250,6 +254,7 @@ fun String.expand(token: String, to: String): String {
  * @see collapse
  */
 fun String?.expand(token: String, to: String): String? = this?.expand(token, to)
+
 /**
  * expands the string based on the specified **token**,
  *
@@ -266,14 +271,13 @@ fun String?.expand(token: String, to: String): String? = this?.expand(token, to)
  */
 fun String.expand(token: String, to: String, last: String): String {
     val str = StringBuilder()
-    val parser = Parser(this) { it.toStack() }
+    val parser = Parser(this) { it.toStack }
     val t = parser.IsSequenceOnce(token)
     while (parser.peek() != null) {
         if (t.peek()) {
             t.pop()
             str.append(if (!t.peek()) last else to)
-        }
-        else str.append(parser.pop()!!)
+        } else str.append(parser.pop()!!)
     }
     return str.toString()
 }
@@ -293,27 +297,44 @@ fun String.expand(token: String, to: String, last: String): String {
  * @see collapse
  */
 fun String?.expand(token: String, to: String, last: String): String? = this?.expand(token, to, last)
+
 /**
- * converts a [String] into a [Stack]
- * @see Stack.toStringConcat
+ * converts a [String] into a [LinkedList]
+ * @see LinkedList.toStringConcat
  * @return the resulting conversion
  */
-fun String.toStack(): Stack<String> {
-    val deq = Stack<String>()
-    var i = 0
-    while (i < this.length) deq.addLast(this[i++].toString())
-    return deq
-}
+val String.toLinkedList
+    get() = LinkedList(
+        { t, ACTION -> t.forEach { ACTION(it) } },  // arrayIterator
+        { (it as Char).toString() },                 // ACTION
+        this
+    )
 
 /**
  * converts a [String] into a [Stack]
  * @see Stack.toStringConcat
  * @return the resulting conversion
  */
-fun String?.toStack(): Stack<String>? {
-    return if (this == null) return null
-    else this.toStack()
-}
+val String.toStack
+    get() = Stack(
+        { t, ACTION -> t.forEach { ACTION(it) } },  // arrayIterator
+        { (it as Char).toString() },                 // ACTION
+        this
+    )
+
+/**
+ * converts a [String] into a [LinkedList]
+ * @see LinkedList.toStringConcat
+ * @return the resulting conversion
+ */
+val String?.toLinkedList get() = this?.toLinkedList
+
+/**
+ * converts a [String] into a [Stack]
+ * @see Stack.toStringConcat
+ * @return the resulting conversion
+ */
+val String?.toStack get() = this?.toStack
 
 /**
  * converts a [String] into a [ByteArray]
@@ -351,7 +372,7 @@ fun String.toStringBuilder(capacity: Int): StringBuilder {
 
 fun String?.toStringBuilder(capacity: Int): StringBuilder? = this?.toStringBuilder(capacity)
 
-fun String.padExtendEnd(to: Int, str: String, rotateString: Boolean, trim: Boolean) = when(trim) {
+fun String.padExtendEnd(to: Int, str: String, rotateString: Boolean, trim: Boolean) = when (trim) {
     true -> when {
         to == 0 || to - this.length isEqualTo 0 -> this
         to - this.length isGreaterThan 0 -> {
@@ -379,39 +400,47 @@ fun String.padExtendEnd(to: Int, str: String, rotateString: Boolean, trim: Boole
     }
 }
 
-fun String.padExtendEnd(to: Int, str: String, rotateString: Boolean): String = this.padExtendEnd(to, str, rotateString, true)
+fun String.padExtendEnd(to: Int, str: String, rotateString: Boolean): String =
+    this.padExtendEnd(to, str, rotateString, true)
 
 fun String.padExtendEnd(to: Int, str: String): String = this.padExtendEnd(to, str, true)
 
-fun String.padExtendEnd(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String = this.padExtendEnd(to, char.toString(), rotateString, trim)
+fun String.padExtendEnd(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String =
+    this.padExtendEnd(to, char.toString(), rotateString, trim)
 
-fun String.padExtendEnd(to: Int, char: Char, rotateString: Boolean): String = this.padExtendEnd(to, char.toString(), rotateString)
+fun String.padExtendEnd(to: Int, char: Char, rotateString: Boolean): String =
+    this.padExtendEnd(to, char.toString(), rotateString)
 
 fun String.padExtendEnd(to: Int, char: Char): String = this.padExtendEnd(to, char.toString())
 
-fun String.padExtendEnd(to: Int, rotateString: Boolean, trim: Boolean): String = this.padExtendEnd(to, this[0], rotateString, trim)
+fun String.padExtendEnd(to: Int, rotateString: Boolean, trim: Boolean): String =
+    this.padExtendEnd(to, this[0], rotateString, trim)
 
 fun String.padExtendEnd(to: Int, rotateString: Boolean): String = this.padExtendEnd(to, this[0], rotateString)
 
 fun String.padExtendEnd(to: Int): String = this.padExtendEnd(to, this[0])
 
-fun String?.padExtendEnd(to: Int, str: String, rotateString: Boolean): String? = this?.padExtendEnd(to, str, rotateString)
+fun String?.padExtendEnd(to: Int, str: String, rotateString: Boolean): String? =
+    this?.padExtendEnd(to, str, rotateString)
 
 fun String?.padExtendEnd(to: Int, str: String): String? = this?.padExtendEnd(to, str)
 
-fun String?.padExtendEnd(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String? = this?.padExtendEnd(to, char.toString(), rotateString, trim)
+fun String?.padExtendEnd(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String? =
+    this?.padExtendEnd(to, char.toString(), rotateString, trim)
 
-fun String?.padExtendEnd(to: Int, char: Char, rotateString: Boolean): String? = this?.padExtendEnd(to, char.toString(), rotateString)
+fun String?.padExtendEnd(to: Int, char: Char, rotateString: Boolean): String? =
+    this?.padExtendEnd(to, char.toString(), rotateString)
 
 fun String?.padExtendEnd(to: Int, char: Char): String? = this?.padExtendEnd(to, char.toString())
 
-fun String?.padExtendEnd(to: Int, rotateString: Boolean, trim: Boolean): String? = this?.padExtendEnd(to, this[0], rotateString, trim)
+fun String?.padExtendEnd(to: Int, rotateString: Boolean, trim: Boolean): String? =
+    this?.padExtendEnd(to, this[0], rotateString, trim)
 
 fun String?.padExtendEnd(to: Int, rotateString: Boolean): String? = this?.padExtendEnd(to, this[0], rotateString)
 
 fun String?.padExtendEnd(to: Int): String? = this?.padExtendEnd(to, this[0])
 
-fun String.padExtendStart(to: Int, str: String, rotateString: Boolean, trim: Boolean): String = when(trim) {
+fun String.padExtendStart(to: Int, str: String, rotateString: Boolean, trim: Boolean): String = when (trim) {
     true -> when {
         to == 0 || to - this.length isEqualTo 0 -> this
         to - this.length isGreaterThan 0 -> {
@@ -439,33 +468,41 @@ fun String.padExtendStart(to: Int, str: String, rotateString: Boolean, trim: Boo
     }
 }
 
-fun String.padExtendStart(to: Int, str: String, rotateString: Boolean): String = this.padExtendStart(to, str, rotateString, true)
+fun String.padExtendStart(to: Int, str: String, rotateString: Boolean): String =
+    this.padExtendStart(to, str, rotateString, true)
 
 fun String.padExtendStart(to: Int, str: String): String = this.padExtendStart(to, str, true)
 
-fun String.padExtendStart(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String = this.padExtendStart(to, char.toString(), rotateString, trim)
+fun String.padExtendStart(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String =
+    this.padExtendStart(to, char.toString(), rotateString, trim)
 
-fun String.padExtendStart(to: Int, char: Char, rotateString: Boolean): String = this.padExtendStart(to, char.toString(), rotateString)
+fun String.padExtendStart(to: Int, char: Char, rotateString: Boolean): String =
+    this.padExtendStart(to, char.toString(), rotateString)
 
 fun String.padExtendStart(to: Int, char: Char): String = this.padExtendStart(to, char.toString())
 
-fun String.padExtendStart(to: Int, rotateString: Boolean, trim: Boolean): String = this.padExtendStart(to, this[0], rotateString, trim)
+fun String.padExtendStart(to: Int, rotateString: Boolean, trim: Boolean): String =
+    this.padExtendStart(to, this[0], rotateString, trim)
 
 fun String.padExtendStart(to: Int, rotateString: Boolean): String = this.padExtendStart(to, this[0], rotateString)
 
 fun String.padExtendStart(to: Int): String = this.padExtendStart(to, this[0])
 
-fun String?.padExtendStart(to: Int, str: String, rotateString: Boolean): String? = this?.padExtendStart(to, str, rotateString)
+fun String?.padExtendStart(to: Int, str: String, rotateString: Boolean): String? =
+    this?.padExtendStart(to, str, rotateString)
 
 fun String?.padExtendStart(to: Int, str: String): String? = this?.padExtendStart(to, str)
 
-fun String?.padExtendStart(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String? = this?.padExtendStart(to, char.toString(), rotateString, trim)
+fun String?.padExtendStart(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String? =
+    this?.padExtendStart(to, char.toString(), rotateString, trim)
 
-fun String?.padExtendStart(to: Int, char: Char, rotateString: Boolean): String? = this?.padExtendStart(to, char.toString(), rotateString)
+fun String?.padExtendStart(to: Int, char: Char, rotateString: Boolean): String? =
+    this?.padExtendStart(to, char.toString(), rotateString)
 
 fun String?.padExtendStart(to: Int, char: Char): String? = this?.padExtendStart(to, char.toString())
 
-fun String?.padExtendStart(to: Int, rotateString: Boolean, trim: Boolean): String? = this?.padExtendStart(to, this[0], rotateString, trim)
+fun String?.padExtendStart(to: Int, rotateString: Boolean, trim: Boolean): String? =
+    this?.padExtendStart(to, this[0], rotateString, trim)
 
 fun String?.padExtendStart(to: Int, rotateString: Boolean): String? = this?.padExtendStart(to, this[0], rotateString)
 
@@ -487,33 +524,41 @@ fun String.padShrinkEnd(to: Int, str: String, rotateString: Boolean, trim: Boole
     else -> this.padExtendEnd(to, str, rotateString, trim)
 }
 
-fun String.padShrinkEnd(to: Int, str: String, rotateString: Boolean): String = this.padShrinkEnd(to, str, rotateString, true)
+fun String.padShrinkEnd(to: Int, str: String, rotateString: Boolean): String =
+    this.padShrinkEnd(to, str, rotateString, true)
 
 fun String.padShrinkEnd(to: Int, str: String): String = this.padShrinkEnd(to, str, true)
 
-fun String.padShrinkEnd(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String = this.padShrinkEnd(to, char.toString(), rotateString, trim)
+fun String.padShrinkEnd(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String =
+    this.padShrinkEnd(to, char.toString(), rotateString, trim)
 
-fun String.padShrinkEnd(to: Int, char: Char, rotateString: Boolean): String = this.padShrinkEnd(to, char.toString(), rotateString)
+fun String.padShrinkEnd(to: Int, char: Char, rotateString: Boolean): String =
+    this.padShrinkEnd(to, char.toString(), rotateString)
 
 fun String.padShrinkEnd(to: Int, char: Char): String = this.padShrinkEnd(to, char.toString())
 
-fun String.padShrinkEnd(to: Int, rotateString: Boolean, trim: Boolean): String = this.padShrinkEnd(to, this[0], rotateString, trim)
+fun String.padShrinkEnd(to: Int, rotateString: Boolean, trim: Boolean): String =
+    this.padShrinkEnd(to, this[0], rotateString, trim)
 
 fun String.padShrinkEnd(to: Int, rotateString: Boolean): String = this.padShrinkEnd(to, this[0], rotateString)
 
 fun String.padShrinkEnd(to: Int): String = this.padShrinkEnd(to, this[0])
 
-fun String?.padShrinkEnd(to: Int, str: String, rotateString: Boolean): String? = this?.padShrinkEnd(to, str, rotateString)
+fun String?.padShrinkEnd(to: Int, str: String, rotateString: Boolean): String? =
+    this?.padShrinkEnd(to, str, rotateString)
 
 fun String?.padShrinkEnd(to: Int, str: String): String? = this?.padShrinkEnd(to, str)
 
-fun String?.padShrinkEnd(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String? = this?.padShrinkEnd(to, char.toString(), rotateString, trim)
+fun String?.padShrinkEnd(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String? =
+    this?.padShrinkEnd(to, char.toString(), rotateString, trim)
 
-fun String?.padShrinkEnd(to: Int, char: Char, rotateString: Boolean): String? = this?.padShrinkEnd(to, char.toString(), rotateString)
+fun String?.padShrinkEnd(to: Int, char: Char, rotateString: Boolean): String? =
+    this?.padShrinkEnd(to, char.toString(), rotateString)
 
 fun String?.padShrinkEnd(to: Int, char: Char): String? = this?.padShrinkEnd(to, char.toString())
 
-fun String?.padShrinkEnd(to: Int, rotateString: Boolean, trim: Boolean): String? = this?.padShrinkEnd(to, this[0], rotateString, trim)
+fun String?.padShrinkEnd(to: Int, rotateString: Boolean, trim: Boolean): String? =
+    this?.padShrinkEnd(to, this[0], rotateString, trim)
 
 fun String?.padShrinkEnd(to: Int, rotateString: Boolean): String? = this?.padShrinkEnd(to, this[0], rotateString)
 
@@ -535,33 +580,41 @@ fun String.padShrinkStart(to: Int, str: String, rotateString: Boolean, trim: Boo
     else -> this.padExtendStart(to, str, rotateString, trim)
 }
 
-fun String.padShrinkStart(to: Int, str: String, rotateString: Boolean): String = this.padShrinkStart(to, str, rotateString, true)
+fun String.padShrinkStart(to: Int, str: String, rotateString: Boolean): String =
+    this.padShrinkStart(to, str, rotateString, true)
 
 fun String.padShrinkStart(to: Int, str: String): String = this.padShrinkStart(to, str, true)
 
-fun String.padShrinkStart(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String = this.padShrinkStart(to, char.toString(), rotateString, trim)
+fun String.padShrinkStart(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String =
+    this.padShrinkStart(to, char.toString(), rotateString, trim)
 
-fun String.padShrinkStart(to: Int, char: Char, rotateString: Boolean): String = this.padShrinkStart(to, char.toString(), rotateString)
+fun String.padShrinkStart(to: Int, char: Char, rotateString: Boolean): String =
+    this.padShrinkStart(to, char.toString(), rotateString)
 
 fun String.padShrinkStart(to: Int, char: Char): String = this.padShrinkStart(to, char.toString())
 
-fun String.padShrinkStart(to: Int, rotateString: Boolean, trim: Boolean): String = this.padShrinkStart(to, this[0], rotateString, trim)
+fun String.padShrinkStart(to: Int, rotateString: Boolean, trim: Boolean): String =
+    this.padShrinkStart(to, this[0], rotateString, trim)
 
 fun String.padShrinkStart(to: Int, rotateString: Boolean): String = this.padShrinkStart(to, this[0], rotateString)
 
 fun String.padShrinkStart(to: Int): String = this.padShrinkStart(to, this[0])
 
-fun String?.padShrinkStart(to: Int, str: String, rotateString: Boolean): String? = this?.padShrinkStart(to, str, rotateString)
+fun String?.padShrinkStart(to: Int, str: String, rotateString: Boolean): String? =
+    this?.padShrinkStart(to, str, rotateString)
 
 fun String?.padShrinkStart(to: Int, str: String): String? = this?.padShrinkStart(to, str)
 
-fun String?.padShrinkStart(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String? = this?.padShrinkStart(to, char.toString(), rotateString, trim)
+fun String?.padShrinkStart(to: Int, char: Char, rotateString: Boolean, trim: Boolean): String? =
+    this?.padShrinkStart(to, char.toString(), rotateString, trim)
 
-fun String?.padShrinkStart(to: Int, char: Char, rotateString: Boolean): String? = this?.padShrinkStart(to, char.toString(), rotateString)
+fun String?.padShrinkStart(to: Int, char: Char, rotateString: Boolean): String? =
+    this?.padShrinkStart(to, char.toString(), rotateString)
 
 fun String?.padShrinkStart(to: Int, char: Char): String? = this?.padShrinkStart(to, char.toString())
 
-fun String?.padShrinkStart(to: Int, rotateString: Boolean, trim: Boolean): String? = this?.padShrinkStart(to, this[0], rotateString, trim)
+fun String?.padShrinkStart(to: Int, rotateString: Boolean, trim: Boolean): String? =
+    this?.padShrinkStart(to, this[0], rotateString, trim)
 
 fun String?.padShrinkStart(to: Int, rotateString: Boolean): String? = this?.padShrinkStart(to, this[0], rotateString)
 
@@ -606,7 +659,7 @@ private fun padOverload() {
         run {
             // update depth
             fun String.pad(depth: Int): String = this.padExtendStart(
-                depth+1,
+                depth + 1,
                 "    ",
                 false,
                 false

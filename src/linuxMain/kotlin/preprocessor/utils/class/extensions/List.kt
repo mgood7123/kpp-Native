@@ -8,3 +8,12 @@ fun <T> MutableList<T>.addCache(new: T, max: Int) {
         this.add(new)
     }
 }
+
+fun <T> MutableList<T>.containsMatch(condition: (value: T) -> Boolean): Boolean {
+    var r: Boolean = false
+    forEach {
+        if (contains(it))
+            r = true
+    }
+    return r
+}
